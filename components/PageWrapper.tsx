@@ -1,8 +1,20 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
-const PageWrapper = ({ children }: { children: React.ReactNode }) => {
+const PageWrapper = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <div className="container flex min-h-[calc(100vh-80px)] flex-col items-center justify-center">
+    <div
+      className={cn(
+        "container flex min-h-[calc(100vh-80px)] flex-col items-center justify-center",
+        className,
+      )}
+    >
       {children}
     </div>
   );

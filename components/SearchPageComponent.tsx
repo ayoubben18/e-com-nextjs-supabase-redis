@@ -11,8 +11,8 @@ const SearchPageComponent = () => {
           <SearchBar />
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <FiltersComponent></FiltersComponent>
-          <CardsSearchComponent></CardsSearchComponent>
+          <FiltersComponent />
+          <CardsSearchComponent />
         </div>
       </div>
     </main>

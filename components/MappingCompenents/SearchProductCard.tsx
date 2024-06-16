@@ -1,12 +1,8 @@
 import { StarIcon } from "@/svgs";
-import Link from "next/link";
 
 export default function SearchProductCard() {
   return (
     <div className="group relative">
-      <Link href="#" className="absolute inset-0 z-10" prefetch={false}>
-        <span className="sr-only">View</span>
-      </Link>
       <img
         src="/product.webp"
         alt="Product Image"
