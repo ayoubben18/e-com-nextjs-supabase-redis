@@ -1,4 +1,3 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -6,19 +5,17 @@ import {
   TableRow,
   TableHead,
   TableBody,
-  TableCell,
 } from "@/components/ui/table";
 import ActiveItem from "./MappingCompenents/ActiveItem";
 import ProfileCard from "./SmallerComponents/ProfileCard";
 
 export default function ProfileComponent() {
   return (
-    <div
-      key="1"
-      className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-12 md:flex-row"
-    >
-      <ProfileCard />
-      <div className="w-full space-y-6">
+    <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-8 px-4 py-12 md:grid-cols-3">
+      <div>
+        <ProfileCard />
+      </div>
+      <div className="col-span-2 w-full space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>

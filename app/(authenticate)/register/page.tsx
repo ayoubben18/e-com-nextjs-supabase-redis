@@ -1,11 +1,10 @@
-import LoginForm from "@/components/LoginForm";
 import PageWrapper from "@/components/PageWrapper";
-import React from "react";
+import SignUpForm from "@/components/SignUpForm";
 
 const page = () => {
   return (
     <PageWrapper>
-      <LoginForm />
+      <SignUpForm />
     </PageWrapper>
   );
 };
