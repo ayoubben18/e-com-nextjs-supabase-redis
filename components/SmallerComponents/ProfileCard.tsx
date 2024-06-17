@@ -1,9 +1,11 @@
 import { CheckIcon } from "@/svgs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getUserId } from "@/db/data/users.data";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function ProfileCard() {
-  const user = await getUserId();
+  const supabase = createClient();
+  const user = await getUserId(supabase);
   return (
     <div className="flex flex-col items-center gap-4">
       <Avatar className="h-24 w-24">

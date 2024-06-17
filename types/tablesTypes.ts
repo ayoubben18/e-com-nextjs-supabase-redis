@@ -7,15 +7,15 @@ export interface AuthUser {
 
 // Type for products table
 export interface Product {
+  colors: string[] | null;
+  description: string | null;
+  general_rating: number | null;
   id: string;
   name: string;
-  description?: string;
-  colors?: string;
-  sizes?: string;
-  stock: number;
-  generalRating?: number;
-  sellerId: string;
-  numberOfImages?: number;
+  number_of_images: number | null;
+  price: number | null;
+  sizes: string[] | null;
+  stock: number | null;
 }
 
 // Type for cart table
@@ -43,11 +43,11 @@ export interface Order {
 
 // Type for comments table
 export interface Comment {
+  created_at: string | null;
+  description: string | null;
   id: string;
-  description: string;
-  createdAt?: Date;
-  userId: string;
-  productId: string;
+  product_id: string;
+  user_id: string | null;
 }
 
 // Type for ratings table
@@ -70,8 +70,8 @@ export interface UserImage {
 
 // Type for products_images table
 export interface ProductImage {
+  created_at: string | null;
   id: string;
-  objectId: string;
-  createdAt?: Date;
-  productId: string;
+  object_id: string | null;
+  product_id: string | null;
 }

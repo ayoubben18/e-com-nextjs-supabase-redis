@@ -1,6 +1,10 @@
 import { ImageSmallPreview } from "../MappingCompenents/ImageSmallPreview";
 
-export function ImageSection() {
+interface Props {
+  images: string[];
+}
+
+export function ImageSection({ images }: Props) {
   return (
     <div className="grid gap-4 md:gap-8">
       <div className="grid items-start gap-3 md:grid-cols-5">

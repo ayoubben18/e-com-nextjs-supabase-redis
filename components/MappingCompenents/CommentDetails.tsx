@@ -1,6 +1,19 @@
+import { Comment } from "@/types/tablesTypes";
+import { formatDistance, subDays } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export default function CommentDetails() {
+interface Props {
+  comment: Comment;
+}
+
+export default function CommentDetails({ comment }: Props) {
+  console.log(
+    comment.created_at &&
+      formatDistance(new Date(comment.created_at), new Date(), {
+        addSuffix: true,
+      }),
+  );
+
   return (
     <div className="flex items-start space-x-3">
       <Avatar className="h-10 w-10">
@@ -11,13 +24,13 @@ export default function CommentDetails() {
         <div className="flex items-center justify-between">
           <div className="font-medium">John Doe</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            2 hours ago
+            {comment.created_at &&
+              formatDistance(new Date(comment.created_at), new Date(), {
+                addSuffix: true,
+              })}
           </div>
         </div>
-        <p>
-          This is a great feature! I love how easy it is to use and the
-          customization options are really impressive.
-        </p>
+        <p>{comment.description}</p>
       </div>
     </div>
   );

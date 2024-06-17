@@ -130,47 +130,39 @@ export type Database = {
       }
       products: {
         Row: {
-          colors: string | null
+          colors: string[] | null
           description: string | null
           general_rating: number | null
           id: string
           name: string
           number_of_images: number | null
-          seller_id: string | null
-          sizes: string | null
+          price: number | null
+          sizes: string[] | null
           stock: number | null
         }
         Insert: {
-          colors?: string | null
+          colors?: string[] | null
           description?: string | null
           general_rating?: number | null
           id?: string
           name: string
           number_of_images?: number | null
-          seller_id?: string | null
-          sizes?: string | null
+          price?: number | null
+          sizes?: string[] | null
           stock?: number | null
         }
         Update: {
-          colors?: string | null
+          colors?: string[] | null
           description?: string | null
           general_rating?: number | null
           id?: string
           name?: string
           number_of_images?: number | null
-          seller_id?: string | null
-          sizes?: string | null
+          price?: number | null
+          sizes?: string[] | null
           stock?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "products_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       products_images: {
         Row: {

@@ -1,15 +1,43 @@
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { createComment } from "@/db/data/comment.data";
+import commenInput from "@/schema/commentSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
-export default function CommentInput() {
+interface Props {
+  commentId: string;
+}
+
+export default function CommentInput({ commentId }: Props) {
+  const form = useForm<z.infer<typeof commenInput>>({
+    resolver: zodResolver(commenInput),
+    defaultValues: {
+      description: "",
+    },
+  });
+
+  async function onSubmit({ description }: z.infer<typeof commenInput>) {
+    await createComment(description, commentId);
+  }
+
   return (
     <div className="flex items-center space-x-3">
       <Avatar className="h-10 w-10">
         <AvatarImage src="/placeholder-user.jpg" />
         <AvatarFallback>JP</AvatarFallback>
       </Avatar>
-      <div className="flex-1">
+      {/* <div className="flex-1">
         <form>
           <Input
             type="text"
@@ -19,8 +47,27 @@ export default function CommentInput() {
         </form>
       </div>
       <Button type="submit" size="sm">
-        Post
-      </Button>
+        Add
+      </Button> */}
+      <div className="w-full flex-1">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="Add a comment..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit">Add</Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
