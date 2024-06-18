@@ -4,9 +4,8 @@ import "./globals.css";
 
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/Footer";
-
+import { Toaster } from "sonner";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -36,7 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Toaster />
+          <Toaster richColors position="top-center" />
           {children}
           <Footer />
         </ThemeProvider>

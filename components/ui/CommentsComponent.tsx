@@ -7,9 +7,10 @@ import supabaseClient from "@/utils/supabaseClient";
 
 interface Props {
   comments: Comment[];
+  productId: string;
 }
 
-export default function CommentsComponent({ comments }: Props) {
+export default function CommentsComponent({ productId, comments }: Props) {
   const [commentArr, setCommentArr] = useState<Comment[]>(comments);
   useEffect(() => {
     const channel = supabaseClient
@@ -26,12 +27,12 @@ export default function CommentsComponent({ comments }: Props) {
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, []);
+  }, [supabaseClient, commentArr, setCommentArr]);
   return (
     <div className="mx-auto w-full space-y-6 px-10">
-      <CommentInput commentId={comments[0].product_id} />
+      <CommentInput commentId={productId} />
       <div className="space-y-4">
-        {commentArr ? (
+        {commentArr.length !== 0 ? (
           commentArr.map((com, index) => (
             <CommentDetails key={index} comment={com} />
           ))

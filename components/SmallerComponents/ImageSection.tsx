@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ImageSmallPreview } from "../MappingCompenents/ImageSmallPreview";
 
 interface Props {
@@ -14,9 +15,10 @@ export function ImageSection({ images }: Props) {
           ))}
         </div>
         <div className="md:col-span-4">
-          <img
+          <Image
             src="/product.webp"
             alt="Product Image"
+            priority
             width={600}
             height={900}
             className="aspect-[2/3] w-full overflow-hidden rounded-lg border border-gray-200 object-cover dark:border-gray-800"

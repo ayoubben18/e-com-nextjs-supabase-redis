@@ -44,7 +44,7 @@ export default function LoginForm({ logged }: Props) {
     if (logged) {
       triggerError("You are already logged in. Logout and retry");
     }
-  }, [logged]);
+  }, [logged, triggerError]);
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     clearError();

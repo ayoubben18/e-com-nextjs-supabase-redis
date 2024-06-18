@@ -1,3 +1,4 @@
+import { CheckoutItemType } from "@/types/DtoTypes";
 import CheckoutItemRow from "../MappingCompenents/CheckoutItemRow";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -8,7 +9,11 @@ import {
   TableRow,
 } from "../ui/table";
 
-export default function CheckoutItems() {
+interface Props {
+  items: CheckoutItemType[];
+}
+
+export default function CheckoutItems({ items }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -24,8 +29,8 @@ export default function CheckoutItems() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[1, 2].map((i) => (
-              <CheckoutItemRow key={i} />
+            {items.map((item, i) => (
+              <CheckoutItemRow key={i} item={item} />
             ))}
           </TableBody>
         </Table>

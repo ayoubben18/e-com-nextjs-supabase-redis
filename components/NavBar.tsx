@@ -1,4 +1,3 @@
-import { ThemeToggle } from "./ThemeToggle";
 import ProfileDropDown from "./SmallerComponents/ProfileDropDown";
 import NotificationsDropdown from "./SmallerComponents/NotificationsDropdown";
 import SheetCard from "./SmallerComponents/SheetCard";

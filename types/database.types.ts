@@ -43,25 +43,25 @@ export type Database = {
       }
       comments: {
         Row: {
-          created_at: string | null
-          description: string | null
+          created_at: string
+          description: string
           id: string
-          product_id: string | null
-          user_id: string | null
+          product_id: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
+          description: string
           id?: string
-          product_id?: string | null
-          user_id?: string | null
+          product_id: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
+          description?: string
           id?: string
-          product_id?: string | null
-          user_id?: string | null
+          product_id?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -84,32 +84,32 @@ export type Database = {
         Row: {
           color: string | null
           id: string
-          order_date: string | null
-          product_id: string | null
-          quantity: number | null
+          order_date: string
+          product_id: string
+          quantity: number
           size: string | null
-          status: string | null
-          user_id: string | null
+          status: string
+          user_id: string
         }
         Insert: {
           color?: string | null
           id?: string
-          order_date?: string | null
-          product_id?: string | null
-          quantity?: number | null
+          order_date?: string
+          product_id: string
+          quantity: number
           size?: string | null
-          status?: string | null
-          user_id?: string | null
+          status?: string
+          user_id: string
         }
         Update: {
           color?: string | null
           id?: string
-          order_date?: string | null
-          product_id?: string | null
-          quantity?: number | null
+          order_date?: string
+          product_id?: string
+          quantity?: number
           size?: string | null
-          status?: string | null
-          user_id?: string | null
+          status?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -132,58 +132,65 @@ export type Database = {
         Row: {
           colors: string[] | null
           description: string | null
-          general_rating: number | null
+          general_rating: number
           id: string
           name: string
           number_of_images: number | null
-          price: number | null
+          price: number
           sizes: string[] | null
-          stock: number | null
+          stock: number
         }
         Insert: {
           colors?: string[] | null
           description?: string | null
-          general_rating?: number | null
+          general_rating?: number
           id?: string
           name: string
           number_of_images?: number | null
-          price?: number | null
+          price?: number
           sizes?: string[] | null
-          stock?: number | null
+          stock?: number
         }
         Update: {
           colors?: string[] | null
           description?: string | null
-          general_rating?: number | null
+          general_rating?: number
           id?: string
           name?: string
           number_of_images?: number | null
-          price?: number | null
+          price?: number
           sizes?: string[] | null
-          stock?: number | null
+          stock?: number
         }
         Relationships: []
       }
       products_images: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          object_id: string | null
-          product_id: string | null
+          object_id: string
+          product_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          object_id?: string | null
-          product_id?: string | null
+          object_id: string
+          product_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          object_id?: string | null
-          product_id?: string | null
+          object_id?: string
+          product_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "products_images_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_images_product_id_fkey"
             columns: ["product_id"]
@@ -195,28 +202,28 @@ export type Database = {
       }
       ratings: {
         Row: {
-          created_at: string | null
-          description: string | null
+          created_at: string
+          description: string
           id: string
-          product_id: string | null
-          rate: number | null
-          user_id: string | null
+          product_id: string
+          rate: number
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
+          description: string
           id?: string
-          product_id?: string | null
-          rate?: number | null
-          user_id?: string | null
+          product_id: string
+          rate: number
+          user_id: string
         }
         Update: {
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
+          description?: string
           id?: string
-          product_id?: string | null
-          rate?: number | null
-          user_id?: string | null
+          product_id?: string
+          rate?: number
+          user_id?: string
         }
         Relationships: [
           {
@@ -237,24 +244,31 @@ export type Database = {
       }
       users_images: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          object_id: string | null
-          user_id: string | null
+          object_id: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          object_id?: string | null
-          user_id?: string | null
+          object_id: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          object_id?: string | null
-          user_id?: string | null
+          object_id?: string
+          user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "users_images_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "users_images_user_id_fkey"
             columns: ["user_id"]
@@ -272,7 +286,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      Delivery: "notplaced" | "placed" | "shipping" | "received"
     }
     CompositeTypes: {
       [_ in never]: never

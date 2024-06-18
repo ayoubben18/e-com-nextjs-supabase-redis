@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 
@@ -13,8 +14,9 @@ export default function ProductHomeCard() {
 
   return (
     <div className="group relative overflow-hidden rounded-lg">
-      <img
+      <Image
         src="/product.webp"
+        priority
         alt="Product 1"
         width={400}
         height={400}

@@ -7,13 +7,6 @@ interface Props {
 }
 
 export default function CommentDetails({ comment }: Props) {
-  console.log(
-    comment.created_at &&
-      formatDistance(new Date(comment.created_at), new Date(), {
-        addSuffix: true,
-      }),
-  );
-
   return (
     <div className="flex items-start space-x-3">
       <Avatar className="h-10 w-10">

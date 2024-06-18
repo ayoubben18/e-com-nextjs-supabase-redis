@@ -11,7 +11,7 @@ const page = async ({ params }: { params: { id: string } }) => {
   return (
     <PageWrapper className="mb-16 gap-10">
       <ProductDetails id={params.id} />
-      <CommentsComponent comments={comments} />
+      <CommentsComponent comments={comments || []} productId={params.id} />
     </PageWrapper>
   );
 };

@@ -10,8 +10,8 @@ export default async function CardsSearchComponent() {
   return (
     <div className="col-span-2 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product, i) => (
-        <Link href={`/product/${product.id}`}>
-          <SearchProductCard key={i} product={product} />
+        <Link href={`/product/${product.id}`} key={i}>
+          <SearchProductCard product={product} />
         </Link>
       ))}
     </div>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import NavBar from "@/components/NavBar";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import QueryProvider from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "E-Commerce App",
@@ -22,8 +23,10 @@ export default async function RootLayout({
   }
   return (
     <div>
-      <NavBar />
-      {children}
+      <QueryProvider>
+        <NavBar />
+        {children}
+      </QueryProvider>
     </div>
   );
 }

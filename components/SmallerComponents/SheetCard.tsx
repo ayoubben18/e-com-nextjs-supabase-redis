@@ -1,10 +1,17 @@
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { Button } from "../ui/button";
-import { ShoppingCartIcon, XIcon } from "@/svgs";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { getCheckoutItems } from "@/db/service/orders-service";
+import { getTotlaePrice } from "@/lib/calculations/getTotalePrice";
+import { ShoppingCartIcon } from "@/svgs";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import ItemCard from "../MappingCompenents/ItemCard";
+import { Button } from "../ui/button";
+import CheckoutRow from "./CheckoutRow";
 
-export default function SheetCard() {
+export default async function SheetCard() {
+  // we use because cookies are not accessible with unstable cahe
+  const cookieStore = cookies();
+  const checkoutItems = await getCheckoutItems(cookieStore);
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -24,13 +31,15 @@ export default function SheetCard() {
           </div>
           <div className="flex-1 overflow-auto p-4">
             <div className="grid gap-4">
-              <ItemCard />
+              <CheckoutRow checkoutItems={checkoutItems} />
             </div>
           </div>
           <div className="border-t px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="font-medium">Total</div>
-              <div className="text-lg font-medium">$99.98</div>
+              <div className="text-lg font-medium">
+                $ {getTotlaePrice(checkoutItems)}
+              </div>
             </div>
             <Button className="mt-2 w-full">
               <Link href={`/checkout`}>Checkout</Link>

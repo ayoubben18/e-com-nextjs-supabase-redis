@@ -22,10 +22,11 @@ export async function getProductById(
   supabase: SupabaseClient<Database>,
   id: string,
 ): Promise<Product> {
-  const { data, error } = await supabase.from("products").select("*").eq(
-    "id",
-    id,
-  ).single();
+  const { data, error } = await supabase.from("products").select("*")
+    .eq(
+      "id",
+      id,
+    ).single();
   if (error) {
     logger.error(error);
     throw new Error(error.message);

@@ -1,11 +1,19 @@
+import { CheckoutItemType } from "@/types/DtoTypes";
 import { TableCell, TableRow } from "../ui/table";
+import Image from "next/image";
+import { getTotlaePrice } from "@/lib/calculations/getTotalePrice";
 
-export default function CheckoutItemRow() {
+interface Props {
+  item: CheckoutItemType;
+}
+
+export default function CheckoutItemRow({ item }: Props) {
   return (
     <TableRow>
       <TableCell>
         <div className="flex items-center gap-3">
-          <img
+          <Image
+            priority
             src="/product.webp"
             alt="Product Image"
             width={64}
@@ -13,15 +21,15 @@ export default function CheckoutItemRow() {
             className="rounded-md object-cover"
           />
           <div>
-            <h4 className="font-medium">Cozy Blanket</h4>
+            <h4 className="font-medium">{item.name}</h4>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Warm and Soft for Chilly Nights
+              Size: {item.size}, Color: {item.color}
             </p>
           </div>
         </div>
       </TableCell>
-      <TableCell>2</TableCell>
-      <TableCell>$59.98</TableCell>
+      <TableCell>{item.quantity}</TableCell>
+      <TableCell>$ {item.price}</TableCell>
     </TableRow>
   );
 }

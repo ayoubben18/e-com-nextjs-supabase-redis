@@ -8,18 +8,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useItemStore } from "@/stores/item.store";
+import { toast } from "sonner";
 
-export default function QuantitySection() {
+export default function QuantitySection({ stock }: { stock: number }) {
+  const { setQuantity } = useItemStore();
+
+  const handleChange = (quantity: string) => {
+    let quantityNumber: number = 1;
+    try {
+      quantityNumber = parseInt(quantity);
+    } catch (e) {
+      toast.error("Please enter a valid quantity");
+    }
+    console.log(quantityNumber);
+
+    setQuantity(quantityNumber);
+  };
   return (
     <div className="grid gap-2">
       <Label htmlFor="quantity" className="text-base">
         Quantity
       </Label>
       <div className="flex items-center gap-2">
-        <Button size="icon" variant="outline">
+        {/* <Button size="icon" variant="outline">
           <MinusIcon className="h-4 w-4" />
-        </Button>
-        <Select defaultValue="1">
+        </Button> */}
+        <Select defaultValue="1" onValueChange={handleChange}>
           <SelectTrigger>
             <SelectValue placeholder="Select" />
           </SelectTrigger>
@@ -31,9 +46,9 @@ export default function QuantitySection() {
             <SelectItem value="5">5</SelectItem>
           </SelectContent>
         </Select>
-        <Button size="icon" variant="outline">
+        {/* <Button size="icon" variant="outline">
           <PlusIcon className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

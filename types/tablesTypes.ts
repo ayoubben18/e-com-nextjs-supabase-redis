@@ -9,13 +9,13 @@ export interface AuthUser {
 export interface Product {
   colors: string[] | null;
   description: string | null;
-  general_rating: number | null;
+  general_rating: number;
   id: string;
   name: string;
   number_of_images: number | null;
-  price: number | null;
+  price: number;
   sizes: string[] | null;
-  stock: number | null;
+  stock: number;
 }
 
 // Type for cart table
@@ -31,23 +31,23 @@ export interface Cart {
 export type OrderStatus = "notplaced" | "placed" | "shipping" | "received";
 
 export interface Order {
+  color: string | null;
   id: string;
-  userId: string;
-  productId: string;
-  color?: string;
-  size?: string;
+  order_date: string | null;
+  product_id: string;
   quantity: number;
-  orderDate?: Date;
-  status: OrderStatus;
+  size: string | null;
+  status: string;
+  user_id: string;
 }
 
 // Type for comments table
 export interface Comment {
-  created_at: string | null;
-  description: string | null;
+  created_at: string;
+  description: string;
   id: string;
   product_id: string;
-  user_id: string | null;
+  user_id: string;
 }
 
 // Type for ratings table
@@ -70,8 +70,8 @@ export interface UserImage {
 
 // Type for products_images table
 export interface ProductImage {
-  created_at: string | null;
+  created_at: string;
   id: string;
-  object_id: string | null;
-  product_id: string | null;
+  object_id: string;
+  product_id: string;
 }

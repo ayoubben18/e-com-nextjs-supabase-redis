@@ -1,5 +1,6 @@
 import { StarIcon } from "@/svgs";
 import { Product } from "@/types/tablesTypes";
+import Image from "next/image";
 
 interface Props {
   product: Product;
@@ -16,9 +17,10 @@ export default function SearchProductCard({ product }: Props) {
   );
   return (
     <div className="group relative">
-      <img
+      <Image
         src="/product.webp"
         alt="Product Image"
+        priority
         width={300}
         height={300}
         className="aspect-square w-full rounded-lg object-cover transition-opacity group-hover:opacity-50"
@@ -28,10 +30,13 @@ export default function SearchProductCard({ product }: Props) {
         <div className="flex items-center gap-2 text-sm">
           <div className="flex items-center gap-0.5">
             {ratingArray.map((i) => (
-              <StarIcon className="h-4 w-4 fill-primary" />
+              <StarIcon key={i} className="h-4 w-4 fill-primary" />
             ))}
             {missingArray.map((i) => (
-              <StarIcon className="h-4 w-4 fill-muted stroke-muted-foreground" />
+              <StarIcon
+                key={i}
+                className="h-4 w-4 fill-muted stroke-muted-foreground"
+              />
             ))}
           </div>
           <span className="text-gray-500 dark:text-gray-400">

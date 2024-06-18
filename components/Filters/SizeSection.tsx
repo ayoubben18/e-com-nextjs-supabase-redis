@@ -1,3 +1,4 @@
+import { useItemStore } from "@/stores/item.store";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function SizeSection({ sizes }: Props) {
+  const { setSize } = useItemStore();
   return (
     <div className="grid gap-2">
       <Label htmlFor="size" className="text-base">
@@ -13,8 +15,9 @@ export default function SizeSection({ sizes }: Props) {
       </Label>
       <RadioGroup
         id="size"
-        defaultValue="m"
+        defaultValue={sizes[0]}
         className="flex items-center gap-2"
+        onValueChange={(value) => setSize(value)}
       >
         {sizes.map((size) => (
           <Label
