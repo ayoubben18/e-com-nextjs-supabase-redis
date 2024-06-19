@@ -1,12 +1,12 @@
 import { create } from "zustand";
 
 type SearchStore = {
-  searchTerm: string;
+  searchTerm: string | null;
   setSearchTerm: (term: string) => void;
 };
 
 const useSearchStore = create<SearchStore>((set) => ({
-  searchTerm: "",
+  searchTerm: null,
   setSearchTerm: (term) => set({ searchTerm: term }),
 }));
 

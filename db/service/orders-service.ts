@@ -12,7 +12,7 @@ import {
   removeOrderById,
   updateOrderQuatity,
 } from "../data/orders.data";
-import { getProductById } from "../data/products";
+import { getProductById } from "../data/products.data";
 import { getUserId } from "../data/users.data";
 
 export async function deleteOrder(orderId: string): Promise<void> {

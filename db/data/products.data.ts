@@ -3,15 +3,19 @@
 import { logger } from "@/logger/logger";
 import { Database } from "@/types/database.types";
 import { Product } from "@/types/tablesTypes";
+import { createClient } from "@/utils/supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function getProducts(
-  supabase: SupabaseClient<Database>,
+  // supabase: SupabaseClient<Database>,
+  elementPerPage: number,
+  page: number,
 ): Promise<Product[]> {
+  const supabase = createClient();
   const { data, error } = await supabase.from("products").select("*").order(
     "general_rating",
     { ascending: false },
-  );
+  ).range(page * elementPerPage, (page + 1) * elementPerPage);
   if (error) {
     throw new Error(error.message);
   }
@@ -47,5 +51,18 @@ export async function updateGeneralRatingProduct(
   if (error) {
     throw new Error(error.message);
   }
+  return data;
+}
+
+export async function findSimilarProduct(
+  supabase: SupabaseClient<Database>,
+  embedding: string,
+) {
+  const { data } = await supabase.rpc("match_documents", {
+    query_embedding: embedding, // pass the query embedding
+    match_threshold: 0.78, // choose an appropriate threshold for your data
+    match_count: 10, // choose the number of matches
+  });
+
   return data;
 }

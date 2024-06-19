@@ -9,7 +9,7 @@ export default function FiltersComponent() {
       <div>
         <h2 className="mb-2 text-lg font-semibold">Filters</h2>
         <div className="flex flex-wrap gap-4 md:flex-col">
-          <CategoryFilter></CategoryFilter>
+          {/* <CategoryFilter></CategoryFilter> */}
           <PriceFilter></PriceFilter>
           <RatingFilter></RatingFilter>
         </div>

@@ -131,7 +131,8 @@ export type Database = {
       products: {
         Row: {
           colors: string[] | null
-          description: string | null
+          description: string
+          embeddings: string | null
           general_rating: number
           id: string
           name: string
@@ -142,7 +143,8 @@ export type Database = {
         }
         Insert: {
           colors?: string[] | null
-          description?: string | null
+          description: string
+          embeddings?: string | null
           general_rating?: number
           id?: string
           name: string
@@ -153,7 +155,8 @@ export type Database = {
         }
         Update: {
           colors?: string[] | null
-          description?: string | null
+          description?: string
+          embeddings?: string | null
           general_rating?: number
           id?: string
           name?: string
@@ -283,7 +286,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_documents: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          match_count: number
+        }
+        Returns: {
+          colors: string[] | null
+          description: string
+          embeddings: string | null
+          general_rating: number
+          id: string
+          name: string
+          number_of_images: number | null
+          price: number
+          sizes: string[] | null
+          stock: number
+        }[]
+      }
     }
     Enums: {
       Delivery: "notplaced" | "placed" | "shipping" | "received"
