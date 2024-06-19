@@ -4,13 +4,13 @@ import { Input } from "../ui/input";
 import useSearchStore from "@/stores/searchStore";
 
 export default function SearchBar() {
-  const { searchTerm, setSearchTerm } = useSearchStore();
-  console.log(searchTerm);
+  const { setSearchTerm } = useSearchStore();
 
   return (
     <div className="relative">
       <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
       <Input
+        defaultValue={""}
         onChange={(e) => {
           setSearchTerm(e.target.value);
         }}

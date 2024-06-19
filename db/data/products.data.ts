@@ -15,7 +15,7 @@ export async function getProducts(
   const { data, error } = await supabase.from("products").select("*").order(
     "general_rating",
     { ascending: false },
-  ).range(page * elementPerPage, (page + 1) * elementPerPage);
+  ).range(page * elementPerPage, (page + 1) * elementPerPage - 1);
   if (error) {
     throw new Error(error.message);
   }
@@ -55,14 +55,21 @@ export async function updateGeneralRatingProduct(
 }
 
 export async function findSimilarProduct(
-  supabase: SupabaseClient<Database>,
-  embedding: string,
+  // supabase: SupabaseClient<Database>,
+  embedding: number[],
 ) {
-  const { data } = await supabase.rpc("match_documents", {
-    query_embedding: embedding, // pass the query embedding
-    match_threshold: 0.78, // choose an appropriate threshold for your data
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("match_documents", {
+    query_embedding: "[" + embedding.toString() + "]", // pass the query embedding
+    match_threshold: 0.80, // choose an appropriate threshold for your data
     match_count: 10, // choose the number of matches
   });
+
+  if (error) {
+    console.log(error.message);
+
+    // throw new Error(error.message);
+  }
 
   return data;
 }

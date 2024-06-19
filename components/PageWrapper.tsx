@@ -11,7 +11,7 @@ const PageWrapper = ({
   return (
     <div
       className={cn(
-        "container flex min-h-[calc(100vh-80px)] flex-col items-center justify-center",
+        "container flex min-h-[calc(100vh-80px)] flex-col items-center",
         className,
       )}
     >

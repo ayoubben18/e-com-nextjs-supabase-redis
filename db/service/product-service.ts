@@ -1,7 +1,12 @@
 import { Product } from "@/types/tablesTypes";
-import { getProductById, getProducts } from "../data/products.data";
+import {
+  findSimilarProduct,
+  getProductById,
+  getProducts,
+} from "../data/products.data";
 import { Database } from "@/types/database.types";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { pipeline } from "@xenova/transformers";
 
 export async function getAllProductDetails(
   supabase: SupabaseClient<Database>,
@@ -18,7 +23,7 @@ export async function getInfiniteProducts(
   { pageParam }: { pageParam: number },
 ): Promise<{ data: Product[]; currentPage: number; nextPage: number | null }> {
   // const supabase = createClient();
-  const products = await getProducts(5, pageParam);
+  const products = await getProducts(10, pageParam);
 
   return {
     data: products,
@@ -28,17 +33,29 @@ export async function getInfiniteProducts(
 }
 
 export async function embedAndSearch(value: string) {
-  // const pipe = await pipeline(
-  //   "feature-extraction",
-  //   "Supabase/gte-small",
-  // );
+  const pipe = await pipeline(
+    "feature-extraction",
+    "Supabase/gte-small",
+  );
 
-  // // Generate the embedding from text
-  // const output = await pipe("Hello world", {
-  //   pooling: "mean",
-  //   normalize: true,
-  // });
+  // Generate the embedding from text
+  const output = await pipe(value, {
+    pooling: "mean",
+    normalize: true,
+  });
+  console.log(Array.from(output.data));
 
+  const searchedProducts = await findSimilarProduct(
+    Array.from(output.data),
+  );
+
+  console.log("searched :", searchedProducts);
+
+  if (!searchedProducts) {
+    return [];
+  }
+
+  return searchedProducts;
   // Extract the embedding output
 
   // console.log(output);
