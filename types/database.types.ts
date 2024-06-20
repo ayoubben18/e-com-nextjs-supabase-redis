@@ -80,6 +80,47 @@ export type Database = {
           },
         ]
       }
+      delivery: {
+        Row: {
+          check_out: string | null
+          created_at: string
+          delivered: string | null
+          id: number
+          shipping: string | null
+          state: string
+          total_price: number
+          user_id: string
+        }
+        Insert: {
+          check_out?: string | null
+          created_at?: string
+          delivered?: string | null
+          id?: number
+          shipping?: string | null
+          state?: string
+          total_price?: number
+          user_id: string
+        }
+        Update: {
+          check_out?: string | null
+          created_at?: string
+          delivered?: string | null
+          id?: number
+          shipping?: string | null
+          state?: string
+          total_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           color: string | null
@@ -131,6 +172,7 @@ export type Database = {
       products: {
         Row: {
           colors: string[] | null
+          delivery_id: number | null
           description: string
           embeddings: string | null
           general_rating: number
@@ -143,6 +185,7 @@ export type Database = {
         }
         Insert: {
           colors?: string[] | null
+          delivery_id?: number | null
           description: string
           embeddings?: string | null
           general_rating?: number
@@ -155,6 +198,7 @@ export type Database = {
         }
         Update: {
           colors?: string[] | null
+          delivery_id?: number | null
           description?: string
           embeddings?: string | null
           general_rating?: number
@@ -165,7 +209,15 @@ export type Database = {
           sizes?: string[] | null
           stock?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "delivery"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products_images: {
         Row: {
@@ -294,6 +346,7 @@ export type Database = {
         }
         Returns: {
           colors: string[] | null
+          delivery_id: number | null
           description: string
           embeddings: string | null
           general_rating: number

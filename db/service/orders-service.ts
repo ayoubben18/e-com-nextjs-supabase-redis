@@ -10,14 +10,17 @@ import {
   createOrder,
   getOrders,
   removeOrderById,
+  updateOrder,
   updateOrderQuatity,
 } from "../data/orders.data";
 import { getProductById } from "../data/products.data";
-import { getUserId } from "../data/users.data";
+import { getUser } from "../data/users.data";
+import { createDelivery, getAllDelivery } from "../data/delivery.data";
+import { Delivery } from "@/enums/delivery.enum";
 
 export async function deleteOrder(orderId: string): Promise<void> {
   const supabase = createClient();
-  const user = await getUserId(supabase);
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not found");
   }
@@ -33,7 +36,7 @@ export async function createNewOrder(
 ): Promise<Order> {
   const supabase = createClient();
 
-  const user = await getUserId(supabase);
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not found");
   }
@@ -74,7 +77,7 @@ export const getCheckoutItems = unstable_cache(
     const checkoutmap = new Map<Order, Product>();
     const supabase = createCachedClient(cookieStore);
 
-    const user = await getUserId(supabase);
+    const user = await getUser(supabase);
 
     if (!user) {
       throw new Error("User not found");
@@ -100,11 +103,47 @@ export const getCheckoutItems = unstable_cache(
   },
 );
 
+export async function getUserOrders() {
+  const supabase = createClient();
+
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const orders = await getAllDelivery(supabase, user.id);
+
+  return orders;
+}
+
+export async function checkout(ordersIds: string[], totalPrice: number) {
+  const supabase = createClient();
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const newDelivery = await createDelivery(
+    supabase,
+    user.id,
+    Delivery.Placed,
+    totalPrice,
+  );
+
+  if (!newDelivery) {
+    throw new Error("Delivery not created");
+  }
+
+  for (const orderId of ordersIds) {
+    await updateOrder(supabase, orderId, Delivery.Placed);
+  }
+  revalidateTag("get-checkout-items");
+}
+
 // export async function getCheckoutItems(): Promise<CheckoutItemType[]> {
 //   const checkoutmap = new Map<Order, Product>();
 //   const supabase = createClient();
 
-//   const user = await getUserId(supabase);
+//   const user = await getUser(supabase);
 
 //   if (!user) {
 //     throw new Error("User not found");

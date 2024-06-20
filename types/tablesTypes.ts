@@ -75,3 +75,14 @@ export interface ProductImage {
   object_id: string;
   product_id: string;
 }
+
+export interface Delivery {
+  check_out: string | null;
+  created_at: string;
+  delivered: string | null;
+  id: number;
+  shipping: string | null;
+  state: string;
+  user_id: string;
+  total_price: number;
+}

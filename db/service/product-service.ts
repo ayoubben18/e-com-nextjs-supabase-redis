@@ -1,6 +1,7 @@
 import { Product } from "@/types/tablesTypes";
 import {
   findSimilarProduct,
+  findUniqueProducts,
   getProductById,
   getProducts,
 } from "../data/products.data";
@@ -19,20 +20,20 @@ export async function getAllProductDetails(
   };
 }
 
-export async function getInfiniteProducts(
-  { pageParam }: { pageParam: number },
-): Promise<{ data: Product[]; currentPage: number; nextPage: number | null }> {
-  // const supabase = createClient();
-  const products = await getProducts(10, pageParam);
+// export async function getInfiniteProducts(
+//   { pageParam }: { pageParam: number },
+// ): Promise<{ data: Product[]; currentPage: number; nextPage: number | null }> {
+//   // const supabase = createClient();
+//   const products = await getProducts(10, pageParam);
 
-  return {
-    data: products,
-    currentPage: pageParam,
-    nextPage: pageParam + 1,
-  };
-}
+//   return {
+//     data: products,
+//     currentPage: pageParam,
+//     nextPage: pageParam + 1,
+//   };
+// }
 
-export async function embedAndSearch(value: string) {
+export async function embedTerm(value: string) {
   const pipe = await pipeline(
     "feature-extraction",
     "Supabase/gte-small",
@@ -45,18 +46,54 @@ export async function embedAndSearch(value: string) {
   });
   console.log(Array.from(output.data));
 
-  const searchedProducts = await findSimilarProduct(
-    Array.from(output.data),
-  );
+  return Array.from(output.data);
+}
 
-  console.log("searched :", searchedProducts);
+export async function fetchProductsService(
+  page: number,
+  searchValue: string,
+  rating: number | null,
+  topPrice: number | null,
+) {
+  const embeddedValue = await embedTerm(searchValue);
+  let searchedProducts;
+  const pageSize = 10;
+  let products;
+  let error;
 
-  if (!searchedProducts) {
-    return [];
+  if (searchValue && searchValue.length > 3) {
+    searchedProducts = await findSimilarProduct(
+      embeddedValue,
+    );
+
+    if (searchedProducts) {
+      if (rating) {
+        searchedProducts = searchedProducts.filter(
+          (product) => product.general_rating >= rating,
+        );
+      }
+
+      products = searchedProducts;
+    } else {
+      error = "No products found";
+    }
+  } else {
+    const { data, error: newError } = await getProducts(
+      pageSize,
+      page,
+      rating || 0,
+      topPrice || 9999999,
+    );
+
+    if (data) {
+      products = data;
+    }
+    error = newError?.message;
   }
 
-  return searchedProducts;
-  // Extract the embedding output
+  if (error) {
+    throw new Error(error);
+  }
 
-  // console.log(output);
+  return products;
 }

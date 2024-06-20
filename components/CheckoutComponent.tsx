@@ -15,7 +15,13 @@ const CheckoutComponent = async () => {
       </div>
       <div className="grid gap-4 md:gap-10">
         <PayementMethod />
-        <OrderSummaryComponent totalPrice={getTotlaePrice(checkoutItems)} />
+        <OrderSummaryComponent
+          totalPrice={getTotlaePrice(checkoutItems)}
+          ordersIds={
+            //map the ids to an array
+            checkoutItems.map((item) => item.id)
+          }
+        />
       </div>
     </div>
   );

@@ -1,24 +1,40 @@
-import { Checkbox } from "../ui/checkbox";
+"use client";
+import { useFilterStore } from "@/stores/filterStore";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 
+const prices = [
+  "100",
+  "200",
+  "300",
+  "400",
+  "500",
+  "600",
+  "700",
+  "800",
+  "900",
+  "1000",
+];
+
 export default function PriceFilter() {
+  const { setTopPrice } = useFilterStore();
+
   return (
     <div>
-      <h3 className="mb-2 text-base font-medium">Price Range</h3>
-      <div className="grid gap-2">
-        <Label className="flex items-center gap-2 font-normal">
-          <Checkbox id="price-0-50" /> $0 - $50
-        </Label>
-        <Label className="flex items-center gap-2 font-normal">
-          <Checkbox id="price-50-100" /> $50 - $100
-        </Label>
-        <Label className="flex items-center gap-2 font-normal">
-          <Checkbox id="price-100-200" /> $100 - $200
-        </Label>
-        <Label className="flex items-center gap-2 font-normal">
-          <Checkbox id="price-200+" /> $200+
-        </Label>
-      </div>
+      <h3 className="mb-2 text-base font-medium">Rating</h3>
+      <RadioGroup
+        id="rating"
+        defaultValue={"9999999"}
+        className="grid gap-2"
+        onValueChange={(value) => setTopPrice(parseInt(value))}
+      >
+        {prices.map((price) => (
+          <Label className="flex items-center gap-2 font-normal">
+            <RadioGroupItem value={price} id={`rating ${price}`} /> {price}$ and
+            below
+          </Label>
+        ))}
+      </RadioGroup>
     </div>
   );
 }

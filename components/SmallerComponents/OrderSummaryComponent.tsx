@@ -7,12 +7,17 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Separator } from "../ui/separator";
+import CheckoutButton from "./CheckoutButton";
 
 interface Props {
   totalPrice: number;
+  ordersIds: string[];
 }
 
-export default function OrderSummaryComponent({ totalPrice }: Props) {
+export default function OrderSummaryComponent({
+  totalPrice,
+  ordersIds,
+}: Props) {
   const shipping = 5;
   return (
     <Card>
@@ -35,7 +40,7 @@ export default function OrderSummaryComponent({ totalPrice }: Props) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Place Order</Button>
+        <CheckoutButton totalPrice={totalPrice} ordersIds={ordersIds} />
       </CardFooter>
     </Card>
   );

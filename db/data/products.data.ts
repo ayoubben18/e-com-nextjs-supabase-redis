@@ -10,16 +10,24 @@ export async function getProducts(
   // supabase: SupabaseClient<Database>,
   elementPerPage: number,
   page: number,
-): Promise<Product[]> {
+  rating: number = 0,
+  topPrice: number,
+) {
   const supabase = createClient();
-  const { data, error } = await supabase.from("products").select("*").order(
+  const response = await supabase.from("products").select("*").order(
     "general_rating",
     { ascending: false },
-  ).range(page * elementPerPage, (page + 1) * elementPerPage - 1);
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data;
+  ).gt("general_rating", rating)
+    .lte(
+      "price",
+      topPrice,
+    )
+    .range(
+      page * elementPerPage,
+      (page + 1) * elementPerPage - 1,
+    );
+
+  return response;
 }
 
 export async function getProductById(
@@ -72,4 +80,19 @@ export async function findSimilarProduct(
   }
 
   return data;
+}
+
+export async function findUniqueProducts(
+  productsIds: string[],
+  page: number,
+  pageSize: number,
+) {
+  const supabase = createClient();
+  const response = await supabase
+    .from("products")
+    .select("*")
+    .in("id", productsIds)
+    .range((page - 1) * pageSize, page * pageSize - 1);
+
+  return response;
 }

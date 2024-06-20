@@ -1,80 +1,95 @@
 "use client";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import SearchProductCard from "../MappingCompenents/SearchProductCard";
-import {
-  embedAndSearch,
-  getInfiniteProducts,
-} from "@/db/service/product-service";
-import { useEffect, useRef, useState } from "react";
-import { useInView } from "react-intersection-observer";
 import useSearchStore from "@/stores/searchStore";
 import { Product } from "@/types/tablesTypes";
-import { toast } from "sonner";
+import Link from "next/link";
+import { useEffect, useState, useTransition } from "react";
 import { useDebounce } from "use-debounce";
-import SkeletonSection from "./SkeletonSection";
-import { useIntersection } from "@mantine/hooks";
+import SearchProductCard from "../MappingCompenents/SearchProductCard";
+import { Button } from "../ui/button";
+import { PlusCircle } from "lucide-react";
+import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
+import { fetchProductsService } from "@/db/service/product-service";
+import { toast } from "sonner";
+import { useFilterStore } from "@/stores/filterStore";
+import { unstable_noStore } from "next/cache";
 
 export default function CardsSearchComponent() {
   // const { ref, inView } = useInView();
-  const { searchTerm, setSearchTerm } = useSearchStore();
-  const [products, setProducts] = useState<Product[]>([]);
+  const { rating, topPrice } = useFilterStore();
+  const [isPending, startTransition] = useTransition();
+  const [page, setPage] = useState(0);
+  const { searchTerm } = useSearchStore();
   const [debounced] = useDebounce(searchTerm, 1000);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const lastPostRef = useRef<HTMLElement>(null);
-  const { ref, entry } = useIntersection({
-    root: lastPostRef.current,
-    threshold: 1,
-  });
-
-  const { data, status, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ["products"],
-    queryFn: ({ pageParam }) => getInfiniteProducts({ pageParam }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
+  const loadProducts = async () => {
+    startTransition(async () => {
+      const products = await fetchProductsService(
+        page,
+        debounced,
+        rating,
+        topPrice,
+      );
+      if (products?.length === 0 && debounced.length < 3) {
+        toast.info("No products left");
+      } else if (products?.length === 0 && debounced.length > 3) {
+        toast.info(`No products found for "${debounced}"`);
+      }
+      if (products && debounced.length < 3) {
+        setProducts((prev) => [...prev, ...products]);
+      } else if (products) {
+        setProducts(products);
+      }
+    });
+  };
 
   useEffect(() => {
-    if (entry?.isIntersecting && debounced === "") {
-      fetchNextPage().then((res) => {
-        console.log(res.data?.pages.flatMap((page) => page.data) || []);
+    loadProducts().catch((e) => {
+      toast.error("Error fetching products");
+    });
+    // return () => {
+    //   setPage(0);
+    //   setSearchTerm("");
+    //   setProducts([]);
+    // };
+  }, [debounced, page, rating, topPrice]);
 
-        setProducts(res.data?.pages.flatMap((page) => page.data) || []);
-      });
-    }
+  useEffect(() => {
+    setPage(0);
+    setProducts([]);
+  }, [debounced, topPrice, rating]);
 
-    if (debounced !== "") {
-      embedAndSearch(debounced).then((res) => {
-        setProducts(res);
-      });
-      // toast.info(`Found: ${products.length} products`);
-    }
-  }, [entry, fetchNextPage, debounced]);
+  const loadMoreProducts = () => {
+    setPage((prev) => prev + 1);
+  };
 
-  if (status === "pending" && debounced === "") return <SkeletonSection />;
-  if (status === "error") toast.error("Error fetching products");
   return (
-    <div className="col-span-2">
+    <div className="col-span-3">
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product, i) => {
-          if (i === products.length - 1) {
-            return <div key={i} ref={ref}></div>;
-          }
           return (
             <Link href={`/product/${product.id}`} key={i}>
               <SearchProductCard product={product} />
             </Link>
           );
         })}
-      </div>
-      {/* { */}
-
-      <div ref={ref} className="flex flex-col items-center">
-        {isFetchingNextPage && products.length > 0 && (
-          <div className="loader" />
+        {isPending && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
         )}
       </div>
-      {/* } */}
+      {!isPending && debounced.length < 3 && (
+        <div className="mt-5 flex w-full justify-center">
+          <Button className="group" onClick={loadMoreProducts}>
+            <span className="group-hover:text-white">Show more</span>
+            <PlusCircle className="ml-2 group-hover:stroke-white" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

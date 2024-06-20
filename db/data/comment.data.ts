@@ -4,7 +4,7 @@ import { Database } from "@/types/database.types";
 import { Comment } from "@/types/tablesTypes";
 import { createClient } from "@/utils/supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { getUserId } from "./users.data";
+import { getUser } from "./users.data";
 
 export async function getProductComments(
   supabase: SupabaseClient<Database>,
@@ -25,7 +25,7 @@ export async function createComment(
   product_id: string,
 ): Promise<void> {
   const supabase = createClient();
-  const user = await getUserId(supabase);
+  const user = await getUser(supabase);
   if (!user) {
     throw new Error("You are not connected !");
   }

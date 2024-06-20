@@ -1,10 +1,8 @@
-"use server ";
+// "use server ";
 
 import { Database } from "@/types/database.types";
 import { Order, OrderStatus } from "@/types/tablesTypes";
-import { createClient } from "@/utils/supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { revalidateTag } from "next/cache";
 
 export async function getOrders(
   supabase: SupabaseClient<Database>,
@@ -73,6 +71,22 @@ export async function updateOrderQuatity(
 ): Promise<Order> {
   const { data, error } = await supabase.from("orders").update({
     quantity: newQuatity,
+  }).eq("id", orderId).select("*").single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function updateOrder(
+  supabase: SupabaseClient<Database>,
+  orderId: string,
+  status: OrderStatus,
+): Promise<Order> {
+  const { data, error } = await supabase.from("orders").update({
+    status,
   }).eq("id", orderId).select("*").single();
 
   if (error) {
