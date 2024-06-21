@@ -29,7 +29,14 @@ export default function DetailsSection({ product }: Props) {
 
   const { isPending, mutate } = useMutation({
     mutationKey: ["createOrder"],
-    mutationFn: () => createNewOrder(product.id, quantity, color, size),
+    mutationFn: () =>
+      createNewOrder(
+        product.id,
+        quantity,
+        quantity * product.price,
+        color,
+        size,
+      ),
     onError: (error) => {
       toast.error("Something went wrong !");
     },
@@ -49,6 +56,9 @@ export default function DetailsSection({ product }: Props) {
       {product.colors && <ColorSection colors={product.colors} />}
       {product.sizes && <SizeSection sizes={product.sizes} />}
       <QuantitySection stock={product.stock} />
+      <p className="text-2xl font-bold">
+        ${(product.price * quantity).toFixed(2)}
+      </p>
       <Button disabled={isPending} size="lg" onClick={() => mutate()}>
         Add to cart
       </Button>

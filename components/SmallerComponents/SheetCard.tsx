@@ -38,7 +38,7 @@ export default async function SheetCard() {
             <div className="flex items-center justify-between">
               <div className="font-medium">Total</div>
               <div className="text-lg font-medium">
-                $ {getTotlaePrice(checkoutItems)}
+                $ {getTotlaePrice(checkoutItems).toFixed(2)}
               </div>
             </div>
             <Button className="mt-2 w-full">

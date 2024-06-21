@@ -7,7 +7,6 @@ import {
   TableBody,
 } from "@/components/ui/table";
 import ActiveItem from "../MappingCompenents/ActiveItem";
-import { createClient } from "@/utils/supabase/server";
 import { getUserOrders } from "@/db/service/orders-service";
 export default async function ActiveItemsCard() {
   const orders = await getUserOrders();
@@ -39,7 +38,7 @@ export default async function ActiveItemsCard() {
             </TableHeader>
             <TableBody>
               {orders.map((order, i) => (
-                <ActiveItem key={i} order={order} i={i + 1} />
+                <ActiveItem key={i} delivery={order} i={i + 1} />
               ))}
             </TableBody>
           </Table>

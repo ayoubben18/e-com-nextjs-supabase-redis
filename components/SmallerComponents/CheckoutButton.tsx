@@ -29,7 +29,11 @@ const CheckoutButton = ({ ordersIds, totalPrice }: Props) => {
   });
 
   return (
-    <Button className="w-full" onClick={() => mutate()}>
+    <Button
+      className="w-full"
+      onClick={() => mutate()}
+      disabled={isPending || ordersIds.length === 0}
+    >
       <Link href={`/checkout`}>Place Order</Link>
     </Button>
   );

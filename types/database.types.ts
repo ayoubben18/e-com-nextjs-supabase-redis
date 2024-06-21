@@ -85,7 +85,7 @@ export type Database = {
           check_out: string | null
           created_at: string
           delivered: string | null
-          id: number
+          id: string
           shipping: string | null
           state: string
           total_price: number
@@ -95,17 +95,17 @@ export type Database = {
           check_out?: string | null
           created_at?: string
           delivered?: string | null
-          id?: number
+          id?: string
           shipping?: string | null
           state?: string
-          total_price?: number
+          total_price: number
           user_id: string
         }
         Update: {
           check_out?: string | null
           created_at?: string
           delivered?: string | null
-          id?: number
+          id?: string
           shipping?: string | null
           state?: string
           total_price?: number
@@ -124,8 +124,10 @@ export type Database = {
       orders: {
         Row: {
           color: string | null
+          delivery_id: string | null
           id: string
           order_date: string
+          price: number | null
           product_id: string
           quantity: number
           size: string | null
@@ -134,8 +136,10 @@ export type Database = {
         }
         Insert: {
           color?: string | null
+          delivery_id?: string | null
           id?: string
           order_date?: string
+          price?: number | null
           product_id: string
           quantity: number
           size?: string | null
@@ -144,8 +148,10 @@ export type Database = {
         }
         Update: {
           color?: string | null
+          delivery_id?: string | null
           id?: string
           order_date?: string
+          price?: number | null
           product_id?: string
           quantity?: number
           size?: string | null
@@ -153,6 +159,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "delivery"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_product_id_fkey"
             columns: ["product_id"]
@@ -172,7 +185,6 @@ export type Database = {
       products: {
         Row: {
           colors: string[] | null
-          delivery_id: number | null
           description: string
           embeddings: string | null
           general_rating: number
@@ -180,12 +192,12 @@ export type Database = {
           name: string
           number_of_images: number | null
           price: number
+          rating_count: number
           sizes: string[] | null
           stock: number
         }
         Insert: {
           colors?: string[] | null
-          delivery_id?: number | null
           description: string
           embeddings?: string | null
           general_rating?: number
@@ -193,12 +205,12 @@ export type Database = {
           name: string
           number_of_images?: number | null
           price?: number
+          rating_count?: number
           sizes?: string[] | null
           stock?: number
         }
         Update: {
           colors?: string[] | null
-          delivery_id?: number | null
           description?: string
           embeddings?: string | null
           general_rating?: number
@@ -206,18 +218,11 @@ export type Database = {
           name?: string
           number_of_images?: number | null
           price?: number
+          rating_count?: number
           sizes?: string[] | null
           stock?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "products_delivery_id_fkey"
-            columns: ["delivery_id"]
-            isOneToOne: false
-            referencedRelation: "delivery"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       products_images: {
         Row: {
@@ -346,7 +351,6 @@ export type Database = {
         }
         Returns: {
           colors: string[] | null
-          delivery_id: number | null
           description: string
           embeddings: string | null
           general_rating: number
@@ -354,6 +358,7 @@ export type Database = {
           name: string
           number_of_images: number | null
           price: number
+          rating_count: number
           sizes: string[] | null
           stock: number
         }[]

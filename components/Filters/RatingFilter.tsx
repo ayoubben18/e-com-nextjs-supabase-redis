@@ -17,8 +17,8 @@ export default function RatingFilter() {
         className="grid gap-2"
         onValueChange={(value) => setRating(parseInt(value))}
       >
-        {rates.map((rate) => (
-          <Label className="flex items-center gap-2 font-normal">
+        {rates.map((rate, index) => (
+          <Label className="flex items-center gap-2 font-normal" key={index}>
             <RadioGroupItem value={rate} id={`rating ${rate}`} /> {rate} stars
             and above
           </Label>

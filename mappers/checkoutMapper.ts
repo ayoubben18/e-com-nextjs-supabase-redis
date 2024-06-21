@@ -11,7 +11,7 @@ export function mapCheckoutMapToCheckoutItemArray(
       id: order.id,
       name: product.name,
       image: null,
-      price: product.price,
+      price: order.price!,
       quantity: order.quantity,
       color: order.color,
       size: order.size,

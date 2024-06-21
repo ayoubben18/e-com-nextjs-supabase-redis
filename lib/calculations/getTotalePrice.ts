@@ -6,7 +6,7 @@ export function getTotlaePrice(items: CheckoutItemType[]): number {
   //   });
   // use reduce funtion to calculate it
   const totalePrice = items.reduce((acc, item) => {
-    return acc + item.price * item.quantity;
+    return acc + item.price;
   }, 0);
-  return totalePrice;
+  return Number(totalePrice.toFixed(2));
 }

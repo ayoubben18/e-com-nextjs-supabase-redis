@@ -9,6 +9,7 @@ import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adap
 import {
   createOrder,
   getOrders,
+  getOrdersByDeliveryId,
   removeOrderById,
   updateOrder,
   updateOrderQuatity,
@@ -31,6 +32,7 @@ export async function deleteOrder(orderId: string): Promise<void> {
 export async function createNewOrder(
   productId: string,
   quantity: number,
+  price: number,
   color?: string | null,
   size?: string | null,
 ): Promise<Order> {
@@ -52,6 +54,7 @@ export async function createNewOrder(
         supabase,
         order.quantity + quantity,
         order.id,
+        order.price! + price,
       );
       revalidateTag("get-checkout-items");
 
@@ -64,6 +67,7 @@ export async function createNewOrder(
     user.id,
     productId,
     quantity,
+    price,
     color,
     size,
   );
@@ -134,9 +138,29 @@ export async function checkout(ordersIds: string[], totalPrice: number) {
   }
 
   for (const orderId of ordersIds) {
-    await updateOrder(supabase, orderId, Delivery.Placed);
+    await updateOrder(supabase, orderId, Delivery.Placed, newDelivery.id);
   }
   revalidateTag("get-checkout-items");
+}
+
+export async function getDeliveryOrders(deliveryId: string) {
+  const checkoutmap = new Map<Order, Product>();
+  const supabase = createClient();
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const orders = await getOrdersByDeliveryId(supabase, deliveryId);
+  for (const order of orders) {
+    const product = await getProductById(supabase, order.product_id);
+    if (!product) {
+      orders.splice(orders.indexOf(order), 1);
+    } else {
+      checkoutmap.set(order, product);
+    }
+  }
+
+  return mapCheckoutMapToCheckoutItemArray(checkoutmap);
 }
 
 // export async function getCheckoutItems(): Promise<CheckoutItemType[]> {

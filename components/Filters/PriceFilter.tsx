@@ -28,8 +28,8 @@ export default function PriceFilter() {
         className="grid gap-2"
         onValueChange={(value) => setTopPrice(parseInt(value))}
       >
-        {prices.map((price) => (
-          <Label className="flex items-center gap-2 font-normal">
+        {prices.map((price, index) => (
+          <Label className="flex items-center gap-2 font-normal" key={index}>
             <RadioGroupItem value={price} id={`rating ${price}`} /> {price}$ and
             below
           </Label>

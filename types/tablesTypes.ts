@@ -32,8 +32,10 @@ export type OrderStatus = "notplaced" | "placed" | "shipping" | "received";
 
 export interface Order {
   color: string | null;
+  delivery_id: string | null;
   id: string;
-  order_date: string | null;
+  order_date: string;
+  price: number | null;
   product_id: string;
   quantity: number;
   size: string | null;
@@ -80,7 +82,7 @@ export interface Delivery {
   check_out: string | null;
   created_at: string;
   delivered: string | null;
-  id: number;
+  id: string;
   shipping: string | null;
   state: string;
   user_id: string;

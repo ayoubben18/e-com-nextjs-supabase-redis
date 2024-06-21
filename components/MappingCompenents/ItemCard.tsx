@@ -45,9 +45,7 @@ export default function ItemCard({ CheckoutItem }: Props) {
         </div>
       </div>
       <div className="text-right">
-        <div className="font-medium">
-          $ {CheckoutItem.quantity * CheckoutItem.price}
-        </div>
+        <div className="font-medium">$ {CheckoutItem.price}</div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
           Qty: {CheckoutItem.quantity}
         </div>
