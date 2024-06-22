@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { getCheckoutItems } from "@/db/service/orders-service";
 import { getTotlaePrice } from "@/lib/calculations/getTotalePrice";
 import { ShoppingCartIcon } from "@/svgs";
@@ -14,6 +20,8 @@ export default async function SheetCard() {
 
   return (
     <Sheet>
+      <SheetTitle className="hidden">Cart</SheetTitle>
+      <SheetDescription className="hidden">Your shopping cart</SheetDescription>
       <SheetTrigger asChild>
         <Button
           variant="ghost"

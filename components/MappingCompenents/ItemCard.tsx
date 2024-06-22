@@ -39,7 +39,7 @@ export default function ItemCard({ CheckoutItem }: Props) {
         className="aspect-square rounded-md object-cover"
       />
       <div className="flex-1">
-        <div className="font-medium">{CheckoutItem.name}</div>
+        <div className="font-medium">{CheckoutItem.products.name}</div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
           Size: {CheckoutItem.size}, Color: {CheckoutItem.color}
         </div>

@@ -31,14 +31,14 @@ export interface Cart {
 export type OrderStatus = "notplaced" | "placed" | "shipping" | "received";
 
 export interface Order {
-  color: string | null;
+  color: string;
   delivery_id: string | null;
   id: string;
   order_date: string;
   price: number | null;
   product_id: string;
   quantity: number;
-  size: string | null;
+  size: string;
   status: string;
   user_id: string;
 }

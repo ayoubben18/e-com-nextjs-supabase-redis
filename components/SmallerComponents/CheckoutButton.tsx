@@ -17,8 +17,7 @@ const CheckoutButton = ({ ordersIds, totalPrice }: Props) => {
     mutationFn: () =>
       checkout(
         // map orders to an array of their Ids
-        ordersIds,
-        totalPrice,
+        totalPrice + 5,
       ),
     onSuccess: () => {
       toast.success("Order placed successfully !");

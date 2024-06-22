@@ -1,9 +1,9 @@
-import { Database } from "@/types/database.types";
+"use server";
 import { Delivery } from "@/types/tablesTypes";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
 
 export async function getAllDelivery(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   userId: string,
 ): Promise<Delivery[]> {
   const { data, error } = await supabase.from("delivery").select("*").eq(
@@ -19,7 +19,7 @@ export async function getAllDelivery(
 }
 
 export async function createDelivery(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   userId: string,
   state: string,
   totalePrice: number,

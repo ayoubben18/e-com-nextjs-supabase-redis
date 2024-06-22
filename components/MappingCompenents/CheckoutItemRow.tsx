@@ -21,7 +21,7 @@ export default function CheckoutItemRow({ item }: Props) {
             className="rounded-md object-cover"
           />
           <div>
-            <h4 className="font-medium">{item.name}</h4>
+            <h4 className="font-medium">{item.products.name}</h4>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Size: {item.size}, Color: {item.color}
             </p>

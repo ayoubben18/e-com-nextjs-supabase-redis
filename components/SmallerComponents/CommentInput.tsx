@@ -11,12 +11,11 @@ import { Input } from "@/components/ui/input";
 import { createComment } from "@/db/data/comment.data";
 import commenInput from "@/schema/commentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useTransition } from "react";
-import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
 
 interface Props {
   commentId: string;
@@ -34,6 +33,7 @@ export default function CommentInput({ commentId }: Props) {
     mutationKey: ["createComment"],
     mutationFn: async ({ description }: z.infer<typeof commenInput>) => {
       await createComment(description, commentId);
+      form.reset();
     },
     onError: (error) => {
       toast.error("Something went wrong !");

@@ -1,19 +1,18 @@
 "use server";
-
-import { logger } from "@/logger/logger";
+import { handleStatus } from "@/errors/handleStatus";
 import { Database } from "@/types/database.types";
 import { Product } from "@/types/tablesTypes";
-import { createClient } from "@/utils/supabase/server";
+import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
+import { createClient } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function getProducts(
-  // supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   elementPerPage: number,
   page: number,
   rating: number = 0,
   topPrice: number,
 ) {
-  const supabase = createClient();
   const response = await supabase.from("products").select("*").order(
     "general_rating",
     { ascending: false },
@@ -31,23 +30,20 @@ export async function getProducts(
 }
 
 export async function getProductById(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   id: string,
-): Promise<Product> {
-  const { data, error } = await supabase.from("products").select("*")
+): Promise<Product | null> {
+  const { data, status } = await supabase.from("products").select("*")
     .eq(
       "id",
       id,
     ).single();
-  if (error) {
-    logger.error(error);
-    throw new Error(error.message);
-  }
-  return data;
+
+  return handleStatus(status, data) as Product | null;
 }
 
 export async function updateGeneralRatingProduct(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   rating: number,
 ): Promise<Product> {
   const { data, error } = await supabase.from("products").update({
@@ -63,7 +59,7 @@ export async function updateGeneralRatingProduct(
 }
 
 export async function findSimilarProduct(
-  // supabase: SupabaseClient<Database>,
+  // supabase: TypedSupabaseClient,
   embedding: number[],
 ) {
   const supabase = createClient();

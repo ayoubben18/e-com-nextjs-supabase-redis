@@ -1,23 +1,19 @@
 "use server";
-
-import { Database } from "@/types/database.types";
 import { Comment } from "@/types/tablesTypes";
-import { createClient } from "@/utils/supabase/server";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
 import { getUser } from "./users.data";
+import { handleStatus } from "@/errors/handleStatus";
+import { createClient } from "@/utils/supabase/client";
 
 export async function getProductComments(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   id: string,
-): Promise<Comment[]> {
-  const { data, error } = await supabase.from("comments").select("*").eq(
+): Promise<Comment[] | null> {
+  const { data, status } = await supabase.from("comments").select("*").eq(
     "product_id",
     id,
   );
-  if (error) {
-    return [];
-  }
-  return data;
+  return handleStatus(status, data) as Comment[] | null;
 }
 
 export async function createComment(

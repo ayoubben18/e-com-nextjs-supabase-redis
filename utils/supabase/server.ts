@@ -1,6 +1,5 @@
 import { Database } from "@/types/database.types";
 import { type CookieOptions, createServerClient } from "@supabase/ssr";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 
 export function createClient() {

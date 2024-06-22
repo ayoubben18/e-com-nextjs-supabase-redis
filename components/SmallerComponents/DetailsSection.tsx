@@ -9,6 +9,7 @@ import QuantitySection from "../Filters/QuantitySection";
 import SizeSection from "../Filters/SizeSection";
 import { Button } from "../ui/button";
 import { useEffect } from "react";
+import { revalidateTag } from "next/cache";
 
 interface Props {
   product: Product;
@@ -36,7 +37,9 @@ export default function DetailsSection({ product }: Props) {
         quantity * product.price,
         color,
         size,
-      ),
+      ).then((data) => {
+        console.log(data);
+      }),
     onError: (error) => {
       toast.error("Something went wrong !");
     },

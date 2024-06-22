@@ -1,19 +1,20 @@
+"use server";
 import { Product } from "@/types/tablesTypes";
 import {
   findSimilarProduct,
-  findUniqueProducts,
   getProductById,
   getProducts,
 } from "../data/products.data";
-import { Database } from "@/types/database.types";
-import { SupabaseClient } from "@supabase/supabase-js";
 import { pipeline } from "@xenova/transformers";
+import { createClient } from "@/utils/supabase/server";
 
 export async function getAllProductDetails(
-  supabase: SupabaseClient<Database>,
   id: string,
-): Promise<{ details: Product; images: any[] }> {
+): Promise<{ details: Product | null; images: any[] }> {
+  const supabase = createClient();
+
   const product = await getProductById(supabase, id);
+
   return {
     details: product,
     images: [],
@@ -55,13 +56,14 @@ export async function fetchProductsService(
   rating: number | null,
   topPrice: number | null,
 ) {
-  const embeddedValue = await embedTerm(searchValue);
+  const supabase = createClient();
   let searchedProducts;
   const pageSize = 10;
   let products;
   let error;
 
   if (searchValue && searchValue.length > 3) {
+    const embeddedValue = await embedTerm(searchValue);
     searchedProducts = await findSimilarProduct(
       embeddedValue,
     );
@@ -79,6 +81,7 @@ export async function fetchProductsService(
     }
   } else {
     const { data, error: newError } = await getProducts(
+      supabase,
       pageSize,
       page,
       rating || 0,

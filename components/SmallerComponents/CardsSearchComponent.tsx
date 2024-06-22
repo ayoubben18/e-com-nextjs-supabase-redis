@@ -11,10 +11,8 @@ import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
 import { fetchProductsService } from "@/db/service/product-service";
 import { toast } from "sonner";
 import { useFilterStore } from "@/stores/filterStore";
-import { unstable_noStore } from "next/cache";
 
 export default function CardsSearchComponent() {
-  // const { ref, inView } = useInView();
   const { rating, topPrice } = useFilterStore();
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(0);

@@ -1,23 +1,21 @@
 "use server";
-
-import { mapCheckoutMapToCheckoutItemArray } from "@/mappers/checkoutMapper";
-import { Order, Product } from "@/types/tablesTypes";
+import { Delivery } from "@/enums/delivery.enum";
+import { Order } from "@/types/tablesTypes";
 import { createCachedClient } from "@/utils/supabase/cachedClient";
 import { createClient } from "@/utils/supabase/server";
-import { revalidateTag, unstable_cache } from "next/cache";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { createDelivery, getAllDelivery } from "../data/delivery.data";
 import {
   createOrder,
-  getOrders,
+  getCheckoutOrders,
   getOrdersByDeliveryId,
+  getSimilarOrder,
   removeOrderById,
-  updateOrder,
   updateOrderQuatity,
+  updateOrders,
 } from "../data/orders.data";
-import { getProductById } from "../data/products.data";
 import { getUser } from "../data/users.data";
-import { createDelivery, getAllDelivery } from "../data/delivery.data";
-import { Delivery } from "@/enums/delivery.enum";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 export async function deleteOrder(orderId: string): Promise<void> {
   const supabase = createClient();
@@ -26,7 +24,6 @@ export async function deleteOrder(orderId: string): Promise<void> {
     throw new Error("User not found");
   }
   await removeOrderById(supabase, orderId, user.id);
-  revalidateTag("get-checkout-items");
 }
 
 export async function createNewOrder(
@@ -39,27 +36,33 @@ export async function createNewOrder(
   const supabase = createClient();
 
   const user = await getUser(supabase);
+
   if (!user) {
     throw new Error("User not found");
   }
 
-  const orders = await getOrders(supabase, user.id, "notplaced");
+  const order = await getSimilarOrder(
+    supabase,
+    user.id,
+    Delivery.NotPlaced,
+    productId,
+    color!,
+    size!,
+  );
 
-  for (const order of orders) {
-    if (
-      order.product_id === productId && order.color === color &&
-      order.size === size
-    ) {
-      const newOrder = await updateOrderQuatity(
-        supabase,
-        order.quantity + quantity,
-        order.id,
-        order.price! + price,
-      );
-      revalidateTag("get-checkout-items");
+  if (order) {
+    console.log(order);
 
-      return newOrder;
-    }
+    const updatedOrder = await updateOrderQuatity(
+      supabase,
+      order.quantity + quantity,
+      order.id,
+      order.price! + price,
+    );
+
+    revalidateTag("checkoutItems");
+
+    return updatedOrder;
   }
 
   const newOrder = await createOrder(
@@ -68,17 +71,17 @@ export async function createNewOrder(
     productId,
     quantity,
     price,
-    color,
-    size,
+    color!,
+    size!,
   );
-  revalidateTag("get-checkout-items");
+
+  revalidateTag("checkoutItems");
 
   return newOrder;
 }
 
 export const getCheckoutItems = unstable_cache(
   async (cookieStore: ReadonlyRequestCookies) => {
-    const checkoutmap = new Map<Order, Product>();
     const supabase = createCachedClient(cookieStore);
 
     const user = await getUser(supabase);
@@ -86,40 +89,33 @@ export const getCheckoutItems = unstable_cache(
     if (!user) {
       throw new Error("User not found");
     }
-    const orders = await getOrders(supabase, user.id, "notplaced");
 
-    for (const order of orders) {
-      const product = await getProductById(supabase, order.product_id);
-      if (!product) {
-        orders.splice(orders.indexOf(order), 1);
-      } else {
-        checkoutmap.set(order, product);
-      }
+    const orders = await getCheckoutOrders(
+      supabase,
+      user.id,
+      Delivery.NotPlaced,
+    );
+
+    if (!orders) {
+      return [];
     }
-
-    return mapCheckoutMapToCheckoutItemArray(checkoutmap);
+    return orders;
   },
-  ["get-checkout-items"],
+  ["checkoutItems"],
   {
-    tags: [
-      "get-checkout-items",
-    ],
+    tags: ["checkoutItems"],
   },
 );
 
-export async function getUserOrders() {
+export async function getUserOrders(userId: string) {
   const supabase = createClient();
 
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  const orders = await getAllDelivery(supabase, user.id);
+  const orders = await getAllDelivery(supabase, userId);
 
   return orders;
 }
 
-export async function checkout(ordersIds: string[], totalPrice: number) {
+export async function checkout(totalPrice: number) {
   const supabase = createClient();
   const user = await getUser(supabase);
   if (!user) {
@@ -137,30 +133,28 @@ export async function checkout(ordersIds: string[], totalPrice: number) {
     throw new Error("Delivery not created");
   }
 
-  for (const orderId of ordersIds) {
-    await updateOrder(supabase, orderId, Delivery.Placed, newDelivery.id);
-  }
-  revalidateTag("get-checkout-items");
+  await updateOrders(
+    supabase,
+    user.id,
+    Delivery.NotPlaced,
+    Delivery.Placed,
+    newDelivery.id,
+  );
+  revalidateTag("checkoutItems");
 }
 
 export async function getDeliveryOrders(deliveryId: string) {
-  const checkoutmap = new Map<Order, Product>();
   const supabase = createClient();
   const user = await getUser(supabase);
   if (!user) {
     throw new Error("User not found");
   }
   const orders = await getOrdersByDeliveryId(supabase, deliveryId);
-  for (const order of orders) {
-    const product = await getProductById(supabase, order.product_id);
-    if (!product) {
-      orders.splice(orders.indexOf(order), 1);
-    } else {
-      checkoutmap.set(order, product);
-    }
+  if (!orders) {
+    return [];
   }
 
-  return mapCheckoutMapToCheckoutItemArray(checkoutmap);
+  return orders;
 }
 
 // export async function getCheckoutItems(): Promise<CheckoutItemType[]> {

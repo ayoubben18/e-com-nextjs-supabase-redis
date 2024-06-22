@@ -87,7 +87,7 @@ export default function ActiveItem({
                   data?.map((order, i) => (
                     <TableRow>
                       <TableCell className="font-medium">
-                        {order.name}
+                        {order.products.name}
                       </TableCell>
                       <TableCell>{order.quantity}</TableCell>
                       <TableCell>{order.size}</TableCell>

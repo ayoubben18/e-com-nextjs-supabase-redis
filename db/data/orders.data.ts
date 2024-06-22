@@ -1,120 +1,138 @@
-// "use server ";
-
-import { Database } from "@/types/database.types";
+"use server";
+import { handleStatus } from "@/errors/handleStatus";
+import { CheckoutItemType } from "@/types/DtoTypes";
 import { Order, OrderStatus } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function getOrders(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   userId: string,
   status: OrderStatus,
-): Promise<Order[]> {
-  const { data, error } = await supabase.from("orders").select("*").eq(
-    "user_id",
-    userId,
-  ).eq("status", status);
+): Promise<Order[] | null> {
+  const { data, status: reqStatus } = await supabase.from("orders").select("*")
+    .eq(
+      "user_id",
+      userId,
+    ).eq("status", status);
 
-  if (error) {
-    // throw new Error(error.message);
-    return [];
-  }
+  return handleStatus(reqStatus, data) as Order[] | null;
+}
 
-  return data;
+export async function getSimilarOrder(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  status: string,
+  productId: string,
+  color: string,
+  size: string,
+) {
+  const { data, status: reqStatus } = await supabase.from("orders").select("*")
+    .eq(
+      "user_id",
+      userId,
+    ).eq("status", status)
+    .eq("product_id", productId)
+    .eq("color", color)
+    .eq("size", size)
+    .single();
+  console.log("find product ", reqStatus);
+
+  return handleStatus(reqStatus, data) as Order | null;
+}
+
+export async function getCheckoutOrders(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  status: string,
+): Promise<CheckoutItemType[] | null> {
+  // add a join with products table to get also the name of the product
+  const { data, status: reqStatus } = await supabase
+    .from("orders")
+    .select("*, products(name)")
+    .eq("user_id", userId)
+    .eq("status", status);
+  console.log(data);
+
+  return handleStatus(reqStatus, data) as CheckoutItemType[] | null;
 }
 
 export async function getOrdersByDeliveryId(
   supabase: TypedSupabaseClient,
   deliveryId: string,
-): Promise<Order[]> {
-  const { data, error } = await supabase.from("orders").select("*").eq(
+) {
+  const { data, status } = await supabase.from("orders").select(
+    "*, products(name)",
+  ).eq(
     "delivery_id",
     deliveryId,
   );
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
+  return handleStatus(status, data) as CheckoutItemType[] | null;
 }
 
 export async function createOrder(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   userId: string,
   productId: string,
   quantity: number,
   price: number,
-  color?: string | null,
-  size?: string | null,
+  color: string,
+  size: string,
 ): Promise<Order> {
-  const { data, error } = await supabase.from("orders").insert([
+  const { data, status } = await supabase.from("orders").insert([
     {
       product_id: productId,
       user_id: userId,
       quantity,
       price,
-      color: color || null,
-      size: size || null,
+      color: color,
+      size: size,
     },
   ]).select("*").single();
 
-  if (error) {
-    console.log(error.message);
-
-    throw new Error(error.message);
-  }
-
-  return data;
+  return handleStatus(status, data) as Order;
 }
 
 export async function removeOrderById(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   orderId: string,
   userId: string,
 ): Promise<void> {
-  const { error } = await supabase.from("orders").delete().eq("id", orderId).eq(
-    "user_id",
-    userId,
-  );
+  const { status } = await supabase.from("orders").delete().eq("id", orderId)
+    .eq(
+      "user_id",
+      userId,
+    );
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  handleStatus(status, null);
 }
 
 export async function updateOrderQuatity(
-  supabase: SupabaseClient<Database>,
+  supabase: TypedSupabaseClient,
   newQuatity: number,
   orderId: string,
   price: number,
 ): Promise<Order> {
-  const { data, error } = await supabase.from("orders").update({
+  const { data, status } = await supabase.from("orders").update({
     quantity: newQuatity,
     price,
   }).eq("id", orderId).select("*").single();
+  console.log("update status", status);
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
+  return handleStatus(status, data) as Order;
 }
 
-export async function updateOrder(
-  supabase: SupabaseClient<Database>,
-  orderId: string,
+export async function updateOrders(
+  supabase: TypedSupabaseClient,
+  userId: string,
   status: OrderStatus,
+  newStatus: OrderStatus,
   deliveryId: string,
-): Promise<Order> {
-  const { data, error } = await supabase.from("orders").update({
-    status,
+): Promise<Order[]> {
+  const { data, status: reqStatus } = await supabase.from("orders").update({
+    status: newStatus,
     delivery_id: deliveryId,
-  }).eq("id", orderId).select("*").single();
+  }).eq("user_id", userId).eq("status", status).select("*");
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
+  return handleStatus(reqStatus, data) as Order[];
 }

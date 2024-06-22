@@ -8,8 +8,15 @@ import {
 } from "@/components/ui/table";
 import ActiveItem from "../MappingCompenents/ActiveItem";
 import { getUserOrders } from "@/db/service/orders-service";
+import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/data/users.data";
 export default async function ActiveItemsCard() {
-  const orders = await getUserOrders();
+  const supabase = createClient();
+  const user = await getUser(supabase);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const orders = await getUserOrders(user.id);
   if (!orders) {
     return null;
   }
