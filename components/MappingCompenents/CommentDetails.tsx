@@ -1,5 +1,5 @@
 import { Comment } from "@/types/tablesTypes";
-import { formatDistance, subDays } from "date-fns";
+import { formatDistance } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface Props {

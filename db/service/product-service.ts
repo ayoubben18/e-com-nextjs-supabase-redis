@@ -7,13 +7,19 @@ import {
 } from "../data/products.data";
 import { pipeline } from "@xenova/transformers";
 import { createClient } from "@/utils/supabase/server";
+import { redis } from "@/lib/redis";
 
 export async function getAllProductDetails(
   id: string,
 ): Promise<{ details: Product | null; images: any[] }> {
-  const supabase = createClient();
-
-  const product = await getProductById(supabase, id);
+  let product;
+  const redisProduct = await redis.get(`product:${id}`);
+  if (redisProduct) {
+    product = redisProduct as Product;
+  } else {
+    const supabase = createClient();
+    product = await getProductById(supabase, id);
+  }
 
   return {
     details: product,

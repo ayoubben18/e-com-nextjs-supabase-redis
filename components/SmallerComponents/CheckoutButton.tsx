@@ -1,10 +1,8 @@
 "use client";
-import React from "react";
-import { Button } from "../ui/button";
-import Link from "next/link";
+import { checkout } from "@/db/service/orders-service";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { checkout } from "@/db/service/orders-service";
+import { Button } from "../ui/button";
 
 type Props = {
   ordersIds: string[];
@@ -33,7 +31,7 @@ const CheckoutButton = ({ ordersIds, totalPrice }: Props) => {
       onClick={() => mutate()}
       disabled={isPending || ordersIds.length === 0}
     >
-      <Link href={`/checkout`}>Place Order</Link>
+      Place Order
     </Button>
   );
 };

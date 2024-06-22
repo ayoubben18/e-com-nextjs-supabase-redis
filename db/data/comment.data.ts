@@ -3,7 +3,7 @@ import { Comment } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
 import { getUser } from "./users.data";
 import { handleStatus } from "@/errors/handleStatus";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 export async function getProductComments(
   supabase: TypedSupabaseClient,
@@ -13,6 +13,7 @@ export async function getProductComments(
     "product_id",
     id,
   );
+
   return handleStatus(status, data) as Comment[] | null;
 }
 

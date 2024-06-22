@@ -12,6 +12,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import CheckoutRow from "./CheckoutRow";
+import RouterButton from "./RouterButton";
 
 export default async function SheetCard() {
   // we use because cookies are not accessible with unstable cahe
@@ -49,9 +50,7 @@ export default async function SheetCard() {
                 $ {getTotlaePrice(checkoutItems).toFixed(2)}
               </div>
             </div>
-            <Button className="mt-2 w-full">
-              <Link href={`/checkout`}>Checkout</Link>
-            </Button>
+            <RouterButton route="/checkout" label="Checkout" />
           </div>
         </div>
       </SheetContent>

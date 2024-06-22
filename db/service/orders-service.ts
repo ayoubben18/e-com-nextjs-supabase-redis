@@ -16,6 +16,8 @@ import {
 } from "../data/orders.data";
 import { getUser } from "../data/users.data";
 import { revalidateTag, unstable_cache } from "next/cache";
+import { redis } from "@/lib/redis";
+import { CheckoutItemType } from "@/types/DtoTypes";
 
 export async function deleteOrder(orderId: string): Promise<void> {
   const supabase = createClient();
@@ -33,9 +35,12 @@ export async function createNewOrder(
   color?: string | null,
   size?: string | null,
 ): Promise<Order> {
+  console.log(productId, quantity, price, color, size);
+
   const supabase = createClient();
 
   const user = await getUser(supabase);
+  console.log(user?.id);
 
   if (!user) {
     throw new Error("User not found");
@@ -74,6 +79,7 @@ export async function createNewOrder(
     color!,
     size!,
   );
+  console.log(newOrder);
 
   revalidateTag("checkoutItems");
 
@@ -90,6 +96,14 @@ export const getCheckoutItems = unstable_cache(
       throw new Error("User not found");
     }
 
+    // redis
+    const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
+
+    if (checkoutRedisItems) {
+      return checkoutRedisItems as CheckoutItemType[];
+    }
+
+    // db
     const orders = await getCheckoutOrders(
       supabase,
       user.id,
@@ -104,14 +118,13 @@ export const getCheckoutItems = unstable_cache(
   ["checkoutItems"],
   {
     tags: ["checkoutItems"],
+    revalidate: 1,
   },
 );
 
 export async function getUserOrders(userId: string) {
   const supabase = createClient();
-
   const orders = await getAllDelivery(supabase, userId);
-
   return orders;
 }
 
@@ -149,6 +162,13 @@ export async function getDeliveryOrders(deliveryId: string) {
   if (!user) {
     throw new Error("User not found");
   }
+  const redisDeliveryItems = await redis.get(
+    `user-placed:${user.id}/${deliveryId}`,
+  );
+  if (redisDeliveryItems) {
+    return redisDeliveryItems as CheckoutItemType[];
+  }
+
   const orders = await getOrdersByDeliveryId(supabase, deliveryId);
   if (!orders) {
     return [];
