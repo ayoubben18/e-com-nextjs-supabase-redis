@@ -1,4 +1,6 @@
-import { Button } from "../ui/button";
+"use client";
+import useTotalPriceStore from "@/stores/totalePriceStore";
+import { CheckoutItemType } from "@/types/DtoTypes";
 import {
   Card,
   CardContent,
@@ -10,14 +12,12 @@ import { Separator } from "../ui/separator";
 import CheckoutButton from "./CheckoutButton";
 
 interface Props {
-  totalPrice: number;
-  ordersIds: string[];
+  orders: CheckoutItemType[];
 }
 
-export default function OrderSummaryComponent({
-  totalPrice,
-  ordersIds,
-}: Props) {
+export default function OrderSummaryComponent({ orders }: Props) {
+  const { totalPrice } = useTotalPriceStore();
+
   const shipping = 5;
   return (
     <Card>
@@ -40,7 +40,7 @@ export default function OrderSummaryComponent({
         </div>
       </CardContent>
       <CardFooter>
-        <CheckoutButton totalPrice={totalPrice} ordersIds={ordersIds} />
+        <CheckoutButton totalPrice={totalPrice} empty={orders.length === 0} />
       </CardFooter>
     </Card>
   );

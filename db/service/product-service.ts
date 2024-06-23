@@ -8,6 +8,7 @@ import {
 import { pipeline } from "@xenova/transformers";
 import { createClient } from "@/utils/supabase/server";
 import { redis } from "@/lib/redis";
+import { count, log } from "console";
 
 export async function getAllProductDetails(
   id: string,
@@ -15,7 +16,7 @@ export async function getAllProductDetails(
   let product;
   const redisProduct = await redis.get(`product:${id}`);
   if (redisProduct) {
-    product = redisProduct as Product;
+    product = redisProduct as unknown as Product;
   } else {
     const supabase = createClient();
     product = await getProductById(supabase, id);
@@ -51,7 +52,6 @@ export async function embedTerm(value: string) {
     pooling: "mean",
     normalize: true,
   });
-  console.log(Array.from(output.data));
 
   return Array.from(output.data);
 }
@@ -60,7 +60,7 @@ export async function fetchProductsService(
   page: number,
   searchValue: string,
   rating: number | null,
-  topPrice: number | null,
+  topPrice: number | undefined,
 ) {
   const supabase = createClient();
   let searchedProducts;
@@ -68,7 +68,56 @@ export async function fetchProductsService(
   let products;
   let error;
 
-  if (searchValue && searchValue.length > 3) {
+  const fetchFromDatabase = async () => {
+    const { data, error: dbError } = await getProducts(
+      supabase,
+      pageSize,
+      page,
+      rating || 0,
+      topPrice || 9999999,
+    );
+
+    if (dbError) {
+      throw new Error(dbError.message);
+    }
+
+    return data;
+  };
+
+  async function fetchFromRedis() {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize - 1;
+
+    try {
+      const productIds = await redis.zrange("products_by_rating", start, end, {
+        rev: true,
+      });
+
+      if (productIds.length === 0) {
+        return null; // No products found in Redis
+      }
+
+      // convert the ids to format product:{id}
+
+      // const productIdsWithPrefix = productIds.map((id) => `product:${id}`);
+      // const products = [];
+      // for (const id of productIds) {
+      //   const product = await redis.hgetall(`product:${id}`);
+      //   products.push(product);
+      // }
+      // const newproducts = await redis.mget(productIdsWithPrefix);
+      // console.log(productIdsWithPrefix[0], productIdsWithPrefix[2]);
+
+      products = await redis.mget(productIds as string[]);
+      console.log(products[0], "products");
+
+      return products as unknown as Product[];
+    } catch (err) {
+      return null;
+    }
+  }
+
+  if (searchValue && searchValue.length >= 3) {
     const embeddedValue = await embedTerm(searchValue);
     searchedProducts = await findSimilarProduct(
       embeddedValue,
@@ -86,18 +135,14 @@ export async function fetchProductsService(
       error = "No products found";
     }
   } else {
-    const { data, error: newError } = await getProducts(
-      supabase,
-      pageSize,
-      page,
-      rating || 0,
-      topPrice || 9999999,
-    );
-
-    if (data) {
-      products = data;
+    // get the values that has keys starting with product:* from redis
+    if (!rating && !topPrice) {
+      products = await fetchFromRedis();
     }
-    error = newError?.message;
+
+    if (!products || products.length === 0) {
+      products = await fetchFromDatabase();
+    }
   }
 
   if (error) {

@@ -5,11 +5,11 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 type Props = {
-  ordersIds: string[];
+  empty: boolean;
   totalPrice: number;
 };
 
-const CheckoutButton = ({ ordersIds, totalPrice }: Props) => {
+const CheckoutButton = ({ empty, totalPrice }: Props) => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["checkout"],
     mutationFn: () =>
@@ -29,7 +29,7 @@ const CheckoutButton = ({ ordersIds, totalPrice }: Props) => {
     <Button
       className="w-full"
       onClick={() => mutate()}
-      disabled={isPending || ordersIds.length === 0}
+      disabled={isPending || empty}
     >
       Place Order
     </Button>

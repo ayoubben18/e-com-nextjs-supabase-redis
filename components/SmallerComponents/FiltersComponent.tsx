@@ -19,7 +19,7 @@ export default function FiltersComponent() {
         <AccordionTrigger>Filters</AccordionTrigger>
         <AccordionContent>
           {" "}
-          <div className="flex gap-6">
+          <div className="flex flex-col gap-6">
             <PriceFilter></PriceFilter>
             <RatingFilter></RatingFilter>
             <Button variant={"outline"} onClick={removeFilters}>

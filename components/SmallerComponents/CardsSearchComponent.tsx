@@ -1,27 +1,28 @@
 "use client";
+import { fetchProductsService } from "@/db/service/product-service";
+import { useFilterStore } from "@/stores/filterStore";
 import useSearchStore from "@/stores/searchStore";
 import { Product } from "@/types/tablesTypes";
+import { useQuery } from "@tanstack/react-query";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import SearchProductCard from "../MappingCompenents/SearchProductCard";
-import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
 import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
-import { fetchProductsService } from "@/db/service/product-service";
-import { toast } from "sonner";
-import { useFilterStore } from "@/stores/filterStore";
+import { Button } from "../ui/button";
 
 export default function CardsSearchComponent() {
   const { rating, topPrice } = useFilterStore();
-  const [isPending, startTransition] = useTransition();
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const { searchTerm } = useSearchStore();
   const [debounced] = useDebounce(searchTerm, 1000);
   const [products, setProducts] = useState<Product[]>([]);
 
-  const loadProducts = async () => {
-    startTransition(async () => {
+  const { isLoading } = useQuery({
+    queryKey: ["products", page, debounced, rating, topPrice],
+    queryFn: async () => {
       const products = await fetchProductsService(
         page,
         debounced,
@@ -30,32 +31,21 @@ export default function CardsSearchComponent() {
       );
       if (products?.length === 0 && debounced.length < 3) {
         toast.info("No products left");
-      } else if (products?.length === 0 && debounced.length > 3) {
+      } else if (products?.length === 0 && debounced.length >= 3) {
         toast.info(`No products found for "${debounced}"`);
-      }
-      if (products && debounced.length < 3) {
+      } else if (products && debounced.length < 3) {
         setProducts((prev) => [...prev, ...products]);
-      } else if (products) {
+      } else if (products && debounced.length >= 3) {
         setProducts(products);
       }
-    });
-  };
+    },
+    retry: false,
+  });
 
   useEffect(() => {
-    loadProducts().catch((e) => {
-      toast.error("Error fetching products");
-    });
-    // return () => {
-    //   setPage(0);
-    //   setSearchTerm("");
-    //   setProducts([]);
-    // };
-  }, [debounced, page, rating, topPrice]);
-
-  useEffect(() => {
-    setPage(0);
+    setPage(1);
     setProducts([]);
-  }, [debounced, topPrice, rating]);
+  }, [debounced, rating, topPrice]);
 
   const loadMoreProducts = () => {
     setPage((prev) => prev + 1);
@@ -71,7 +61,7 @@ export default function CardsSearchComponent() {
             </Link>
           );
         })}
-        {isPending && (
+        {isLoading && (
           <>
             <SkeletonCard />
             <SkeletonCard />
@@ -80,7 +70,7 @@ export default function CardsSearchComponent() {
           </>
         )}
       </div>
-      {!isPending && debounced.length < 3 && (
+      {!isLoading && debounced.length < 3 && (
         <div className="mt-5 flex w-full justify-center">
           <Button className="group" onClick={loadMoreProducts}>
             <span className="group-hover:text-white">Show more</span>

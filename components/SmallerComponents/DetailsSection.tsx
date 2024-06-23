@@ -9,7 +9,8 @@ import QuantitySection from "../Filters/QuantitySection";
 import SizeSection from "../Filters/SizeSection";
 import { Button } from "../ui/button";
 import { useEffect } from "react";
-import { revalidateTag } from "next/cache";
+import useCartStore from "@/stores/cartStore";
+import { Delivery } from "@/enums/delivery.enum";
 
 interface Props {
   product: Product;
@@ -21,6 +22,7 @@ export default function DetailsSection({ product }: Props) {
   }
 
   const { color, size, quantity, setColor, setSize } = useItemStore();
+  const { addItem } = useCartStore();
   useEffect(() => {
     if (product.colors && product.sizes) {
       setColor(product.colors[0]);
@@ -30,16 +32,31 @@ export default function DetailsSection({ product }: Props) {
 
   const { isPending, mutate } = useMutation({
     mutationKey: ["createOrder"],
-    mutationFn: () =>
-      createNewOrder(
+    mutationFn: async () => {
+      await createNewOrder(
         product.id,
         quantity,
         quantity * product.price,
         color,
         size,
-      ).then((data) => {
-        console.log(data);
-      }),
+      ).then((res) => {
+        addItem({
+          id: product.id,
+          price: product.price * quantity,
+          quantity,
+          color,
+          size,
+          status: Delivery.NotPlaced,
+          user_id: "1",
+          order_date: new Date().toISOString(),
+          product_id: product.id,
+          delivery_id: null,
+          products: {
+            name: product.name,
+          },
+        });
+      });
+    },
     onError: (error) => {
       toast.error("Something went wrong !");
     },

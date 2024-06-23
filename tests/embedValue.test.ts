@@ -13,7 +13,6 @@ describe("Should execurte the embeddings tests", () => {
       normalize: true,
     });
 
-    console.log(output);
     expect(output).toBeDefined();
   });
 });

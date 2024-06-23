@@ -21,7 +21,6 @@ export default function QuantitySection({ stock }: { stock: number }) {
     } catch (e) {
       toast.error("Please enter a valid quantity");
     }
-    console.log(quantityNumber);
 
     setQuantity(quantityNumber);
   };

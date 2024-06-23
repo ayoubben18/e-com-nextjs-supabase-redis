@@ -1,23 +1,20 @@
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { getCheckoutItems } from "@/db/service/orders-service";
-import { getTotlaePrice } from "@/lib/calculations/getTotalePrice";
 import { ShoppingCartIcon } from "@/svgs";
-import { cookies } from "next/headers";
-import Link from "next/link";
+import SheetFooterMoney from "../MappingCompenents/SheetFooterMoney";
 import { Button } from "../ui/button";
 import CheckoutRow from "./CheckoutRow";
-import RouterButton from "./RouterButton";
 
 export default async function SheetCard() {
   // we use because cookies are not accessible with unstable cahe
-  const cookieStore = cookies();
-  const checkoutItems = await getCheckoutItems(cookieStore);
+  const checkoutItems = await getCheckoutItems();
 
   return (
     <Sheet>
@@ -33,6 +30,7 @@ export default async function SheetCard() {
           <span className="sr-only">Cart</span>
         </Button>
       </SheetTrigger>
+      <SheetClose />
       <SheetContent side="right" className="w-[400px] max-w-full">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b px-4 py-3">
@@ -43,15 +41,7 @@ export default async function SheetCard() {
               <CheckoutRow checkoutItems={checkoutItems} />
             </div>
           </div>
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="font-medium">Total</div>
-              <div className="text-lg font-medium">
-                $ {getTotlaePrice(checkoutItems).toFixed(2)}
-              </div>
-            </div>
-            <RouterButton route="/checkout" label="Checkout" />
-          </div>
+          <SheetFooterMoney />
         </div>
       </SheetContent>
     </Sheet>

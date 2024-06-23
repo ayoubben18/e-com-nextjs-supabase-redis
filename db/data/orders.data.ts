@@ -35,7 +35,6 @@ export async function getSimilarOrder(
     .eq("color", color)
     .eq("size", size)
     .single();
-  console.log("find product ", reqStatus);
 
   return handleStatus(reqStatus, data) as Order | null;
 }
@@ -51,7 +50,6 @@ export async function getCheckoutOrders(
     .select("*, products(name)")
     .eq("user_id", userId)
     .eq("status", status);
-  console.log(data);
 
   return handleStatus(reqStatus, data) as CheckoutItemType[] | null;
 }
@@ -117,7 +115,6 @@ export async function updateOrderQuatity(
     quantity: newQuatity,
     price,
   }).eq("id", orderId).select("*").single();
-  console.log("update status", status);
 
   return handleStatus(status, data) as Order;
 }

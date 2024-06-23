@@ -61,7 +61,6 @@ export default function LoginForm({ logged }: Props) {
         })
         .catch(() => triggerError("An error occurred. Please try again."));
     });
-    console.log(values);
   }
 
   const signInWithAuth = async (provider: "google" | "facebook") => {
@@ -76,7 +75,6 @@ export default function LoginForm({ logged }: Props) {
       console.error("Error", error);
       return;
     }
-    console.log(data.url);
   };
 
   return (

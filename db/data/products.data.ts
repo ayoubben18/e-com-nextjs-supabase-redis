@@ -1,10 +1,8 @@
 "use server";
 import { handleStatus } from "@/errors/handleStatus";
-import { Database } from "@/types/database.types";
 import { Product } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
 import { createClient } from "@/utils/supabase/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export async function getProducts(
   supabase: TypedSupabaseClient,
@@ -22,8 +20,8 @@ export async function getProducts(
       topPrice,
     )
     .range(
-      page * elementPerPage,
-      (page + 1) * elementPerPage - 1,
+      (page - 1) * elementPerPage,
+      page * elementPerPage - 1,
     );
 
   return response;
@@ -70,8 +68,6 @@ export async function findSimilarProduct(
   });
 
   if (error) {
-    console.log(error.message);
-
     // throw new Error(error.message);
   }
 

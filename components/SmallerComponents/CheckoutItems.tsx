@@ -1,3 +1,4 @@
+"use client";
 import { CheckoutItemType } from "@/types/DtoTypes";
 import CheckoutItemRow from "../MappingCompenents/CheckoutItemRow";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -8,12 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import useDeletionStore from "@/stores/deletionStore";
+import useCartStore from "@/stores/cartStore";
+import { useQuery } from "@tanstack/react-query";
+import { getCheckoutItems } from "@/db/service/orders-service";
 
 interface Props {
   items: CheckoutItemType[];
 }
 
 export default function CheckoutItems({ items }: Props) {
+  const { item } = useDeletionStore();
+  const { item: cartItem } = useCartStore();
+  const { data, isLoading } = useQuery({
+    queryKey: ["checkout-items", item, cartItem],
+    queryFn: async () => getCheckoutItems(),
+    initialData: items,
+    refetchInterval: 500,
+  });
   return (
     <Card>
       <CardHeader>
@@ -29,7 +42,7 @@ export default function CheckoutItems({ items }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item, i) => (
+            {data.map((item, i) => (
               <CheckoutItemRow key={i} item={item} />
             ))}
           </TableBody>

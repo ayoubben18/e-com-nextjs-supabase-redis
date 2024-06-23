@@ -26,6 +26,17 @@ export async function deleteOrder(orderId: string): Promise<void> {
     throw new Error("User not found");
   }
   await removeOrderById(supabase, orderId, user.id);
+  const checkout = await redis.get(`user-checkout:${user.id}`);
+  // filter the deleted one
+  const newCheckout = (checkout as CheckoutItemType[]).filter((item) =>
+    item.id !== orderId
+  );
+
+  if (newCheckout.length === 0) {
+    await redis.del(`user-checkout:${user.id}`);
+  }
+
+  await redis.set(`user-checkout:${user.id}`, newCheckout);
 }
 
 export async function createNewOrder(
@@ -35,12 +46,9 @@ export async function createNewOrder(
   color?: string | null,
   size?: string | null,
 ): Promise<Order> {
-  console.log(productId, quantity, price, color, size);
-
   const supabase = createClient();
 
   const user = await getUser(supabase);
-  console.log(user?.id);
 
   if (!user) {
     throw new Error("User not found");
@@ -56,8 +64,6 @@ export async function createNewOrder(
   );
 
   if (order) {
-    console.log(order);
-
     const updatedOrder = await updateOrderQuatity(
       supabase,
       order.quantity + quantity,
@@ -79,48 +85,40 @@ export async function createNewOrder(
     color!,
     size!,
   );
-  console.log(newOrder);
 
   revalidateTag("checkoutItems");
 
   return newOrder;
 }
 
-export const getCheckoutItems = unstable_cache(
-  async (cookieStore: ReadonlyRequestCookies) => {
-    const supabase = createCachedClient(cookieStore);
+export const getCheckoutItems = async () => {
+  const supabase = createClient();
 
-    const user = await getUser(supabase);
+  const user = await getUser(supabase);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+  if (!user) {
+    throw new Error("User not found");
+  }
 
-    // redis
-    const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
+  // redis
+  const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
 
-    if (checkoutRedisItems) {
-      return checkoutRedisItems as CheckoutItemType[];
-    }
+  if (checkoutRedisItems) {
+    return checkoutRedisItems as CheckoutItemType[];
+  }
 
-    // db
-    const orders = await getCheckoutOrders(
-      supabase,
-      user.id,
-      Delivery.NotPlaced,
-    );
+  // db
+  const orders = await getCheckoutOrders(
+    supabase,
+    user.id,
+    Delivery.NotPlaced,
+  );
 
-    if (!orders) {
-      return [];
-    }
-    return orders;
-  },
-  ["checkoutItems"],
-  {
-    tags: ["checkoutItems"],
-    revalidate: 1,
-  },
-);
+  if (!orders) {
+    return [];
+  }
+  return orders;
+};
 
 export async function getUserOrders(userId: string) {
   const supabase = createClient();

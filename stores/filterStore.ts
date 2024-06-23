@@ -3,7 +3,7 @@ import { create } from "zustand";
 type FilterStore = {
   rating: number | null;
   setRating: (rating: number) => void;
-  topPrice: number | null;
+  topPrice: number | undefined;
   setTopPrice: (topPrice: number) => void;
   removeFilters: () => void;
 };
@@ -11,7 +11,7 @@ type FilterStore = {
 export const useFilterStore = create<FilterStore>((set) => ({
   rating: null,
   setRating: (rating) => set({ rating }),
-  topPrice: null,
+  topPrice: undefined,
   setTopPrice: (topPrice) => set({ topPrice }),
-  removeFilters: () => set({ rating: null, topPrice: null }),
+  removeFilters: () => set({ rating: null, topPrice: undefined }),
 }));
