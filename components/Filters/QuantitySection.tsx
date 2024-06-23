@@ -1,5 +1,5 @@
-import { MinusIcon, PlusIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { useItemStore } from "@/stores/item.store";
+import { toast } from "sonner";
 import { Label } from "../ui/label";
 import {
   Select,
@@ -8,8 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useItemStore } from "@/stores/item.store";
-import { toast } from "sonner";
 
 export default function QuantitySection({ stock }: { stock: number }) {
   const { setQuantity, quantity } = useItemStore();

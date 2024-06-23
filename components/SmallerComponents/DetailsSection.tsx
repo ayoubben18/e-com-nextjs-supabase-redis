@@ -2,7 +2,7 @@
 import { createNewOrder } from "@/db/service/orders-service";
 import { useItemStore } from "@/stores/item.store";
 import { Product } from "@/types/tablesTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import ColorSection from "../Filters/ColorSection";
 import QuantitySection from "../Filters/QuantitySection";
@@ -23,6 +23,7 @@ export default function DetailsSection({ product }: Props) {
 
   const { color, size, quantity, setColor, setSize } = useItemStore();
   const { addItem } = useCartStore();
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (product.colors && product.sizes) {
       setColor(product.colors[0]);
@@ -59,6 +60,9 @@ export default function DetailsSection({ product }: Props) {
     },
     onError: (error) => {
       toast.error("Something went wrong !");
+      queryClient.invalidateQueries({
+        queryKey: ["checkout-items"],
+      });
     },
     onSuccess: () => {
       toast.success("Product added to cart");

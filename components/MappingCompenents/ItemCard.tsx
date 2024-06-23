@@ -2,7 +2,7 @@
 import { deleteOrder } from "@/db/service/orders-service";
 import { XIcon } from "@/svgs";
 import { CheckoutItemType } from "@/types/DtoTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -14,6 +14,7 @@ interface Props {
 
 export default function ItemCard({ CheckoutItem }: Props) {
   const { setItem } = useDeletionStore();
+  const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationKey: ["deleteItem"],
     mutationFn: () => deleteOrder(CheckoutItem.id),
@@ -25,6 +26,11 @@ export default function ItemCard({ CheckoutItem }: Props) {
     },
     onSuccess: () => {
       toast.success("Product deleted from cart");
+      // simulate a delay of 500ms
+      // new Promise((resolve) => setTimeout(resolve, 500));
+      queryClient.invalidateQueries({
+        queryKey: ["checkout-items"],
+      });
     },
   });
 

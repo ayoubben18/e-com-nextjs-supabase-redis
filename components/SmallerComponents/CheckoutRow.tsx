@@ -22,7 +22,6 @@ const CheckoutRow = ({ checkoutItems }: Props) => {
     queryKey: ["checkout-items", item, cartItem],
     queryFn: async () => getCheckoutItems(),
     initialData: checkoutItems,
-    refetchInterval: 750,
   });
 
   useEffect(() => {

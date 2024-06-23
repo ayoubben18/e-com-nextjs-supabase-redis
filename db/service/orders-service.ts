@@ -101,11 +101,11 @@ export const getCheckoutItems = async () => {
   }
 
   // redis
-  const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
+  // const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
 
-  if (checkoutRedisItems) {
-    return checkoutRedisItems as CheckoutItemType[];
-  }
+  // if (checkoutRedisItems) {
+  //   return checkoutRedisItems as CheckoutItemType[];
+  // }
 
   // db
   const orders = await getCheckoutOrders(

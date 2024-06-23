@@ -25,7 +25,6 @@ export default function CheckoutItems({ items }: Props) {
     queryKey: ["checkout-items", item, cartItem],
     queryFn: async () => getCheckoutItems(),
     initialData: items,
-    refetchInterval: 500,
   });
   return (
     <Card>
