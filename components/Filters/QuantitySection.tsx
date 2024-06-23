@@ -12,7 +12,7 @@ import { useItemStore } from "@/stores/item.store";
 import { toast } from "sonner";
 
 export default function QuantitySection({ stock }: { stock: number }) {
-  const { setQuantity } = useItemStore();
+  const { setQuantity, quantity } = useItemStore();
 
   const handleChange = (quantity: string) => {
     let quantityNumber: number = 1;
@@ -33,7 +33,10 @@ export default function QuantitySection({ stock }: { stock: number }) {
         {/* <Button size="icon" variant="outline">
           <MinusIcon className="h-4 w-4" />
         </Button> */}
-        <Select defaultValue="1" onValueChange={handleChange}>
+        <Select
+          defaultValue={quantity.toString() || "1"}
+          onValueChange={handleChange}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select" />
           </SelectTrigger>
