@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function PriceFilter() {
-  const { setTopPrice } = useFilterStore();
+  const { setTopPrice, topPrice } = useFilterStore();
 
   const form = useForm<z.infer<typeof maxSchema>>({
     resolver: zodResolver(maxSchema),
@@ -45,7 +45,12 @@ export default function PriceFilter() {
               <FormItem>
                 <FormLabel>Top Price</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Price" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    defaultValue={topPrice}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>Enter your max price :</FormDescription>
                 <FormMessage />
