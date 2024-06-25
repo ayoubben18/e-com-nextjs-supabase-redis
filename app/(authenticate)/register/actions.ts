@@ -9,13 +9,19 @@ export async function signup(values: z.infer<typeof registerSchema>) {
   if (!validatedFields.success) {
     return { error: "Invalid inputs" };
   }
-
+  let whatENV;
+  const env = process.env.NODE_ENV;
+  if (env === "development") {
+    whatENV = "http://localhost:3000";
+  } else if (env === "production") {
+    whatENV = process.env.NEXT_PUBLIC_URL!;
+  }
   const { error } = await supabase.auth.signUp({
     password: values.password,
     email: values.email,
     options: {
       data: { username: values.username },
-      emailRedirectTo: "http://localhost:3000/auth/callback",
+      emailRedirectTo: `${whatENV}/auth/callback`,
     },
   });
 
