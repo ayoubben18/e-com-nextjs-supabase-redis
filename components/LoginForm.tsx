@@ -72,7 +72,7 @@ export default function LoginForm({ logged }: Props) {
     } else if (env === "production") {
       whatENV = process.env.NEXT_PUBLIC_URL!;
     }
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${whatENV}/auth/callback`,
