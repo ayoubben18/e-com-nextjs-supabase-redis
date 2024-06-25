@@ -1,8 +1,7 @@
+import { getCheckoutItems } from "@/db/service/orders-service";
 import CheckoutItems from "./SmallerComponents/CheckoutItems";
 import OrderSummaryComponent from "./SmallerComponents/OrderSummaryComponent";
 import PayementMethod from "./SmallerComponents/PayementMethod";
-import { getCheckoutItems } from "@/db/service/orders-service";
-import { getTotlaePrice } from "@/lib/calculations/getTotalePrice";
 
 const CheckoutComponent = async () => {
   const checkoutItems = await getCheckoutItems();

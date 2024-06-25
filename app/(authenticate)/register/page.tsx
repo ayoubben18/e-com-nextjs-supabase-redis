@@ -3,7 +3,7 @@ import SignUpForm from "@/components/SignUpForm";
 
 const page = () => {
   return (
-    <PageWrapper>
+    <PageWrapper className="justify-center">
       <SignUpForm />
     </PageWrapper>
   );

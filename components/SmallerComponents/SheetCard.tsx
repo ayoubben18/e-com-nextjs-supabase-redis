@@ -11,9 +11,14 @@ import { ShoppingCartIcon } from "@/svgs";
 import SheetFooterMoney from "../MappingCompenents/SheetFooterMoney";
 import { Button } from "../ui/button";
 import CheckoutRow from "./CheckoutRow";
+import { createClient } from "@/utils/supabase/server";
+import { getUser } from "@/db/data/users.data";
 
 export default async function SheetCard() {
-  // we use because cookies are not accessible with unstable cahe
+  const supabase = createClient();
+
+  const user = await getUser(supabase);
+  if (!user) return null;
   const checkoutItems = await getCheckoutItems();
 
   return (

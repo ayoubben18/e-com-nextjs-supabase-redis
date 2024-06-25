@@ -1,10 +1,13 @@
-import HomePage from "@/components/HomePage";
 import PageWrapper from "@/components/PageWrapper";
+import SearchPageComponent from "@/components/SearchPageComponent";
+import React from "react";
 
-export default function Home() {
+const page = () => {
   return (
     <PageWrapper>
-      <HomePage />
+      <SearchPageComponent />
     </PageWrapper>
   );
-}
+};
+
+export default page;

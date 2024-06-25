@@ -20,10 +20,5 @@ export default async function RootLayout({
   if (error || !data?.user) {
     redirect("/login");
   }
-  return (
-    <div>
-      <NavBar />
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }

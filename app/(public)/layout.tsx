@@ -1,4 +1,5 @@
 import HomeNav from "@/components/HomeNav";
+import NavBar from "@/components/NavBar";
 
 export const metadata = {
   title: "Home",
@@ -12,7 +13,6 @@ export default function RootLayout({
 }) {
   return (
     <div>
-      <HomeNav />
       {children}
       {/* <Footer /> */}
     </div>

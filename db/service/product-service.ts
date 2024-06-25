@@ -97,17 +97,6 @@ export async function fetchProductsService(
         return null; // No products found in Redis
       }
 
-      // convert the ids to format product:{id}
-
-      // const productIdsWithPrefix = productIds.map((id) => `product:${id}`);
-      // const products = [];
-      // for (const id of productIds) {
-      //   const product = await redis.hgetall(`product:${id}`);
-      //   products.push(product);
-      // }
-      // const newproducts = await redis.mget(productIdsWithPrefix);
-      // console.log(productIdsWithPrefix[0], productIdsWithPrefix[2]);
-
       products = await redis.mget(productIds as string[]);
       console.log(products[0], "products");
 

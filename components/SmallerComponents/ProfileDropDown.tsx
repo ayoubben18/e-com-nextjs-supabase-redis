@@ -12,7 +12,6 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import { revalidatePath } from "next/cache";
 
 export default function ProfileDropDown() {
   const router = useRouter();

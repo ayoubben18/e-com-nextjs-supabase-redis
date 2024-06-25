@@ -1,16 +1,16 @@
 "use client";
 import { createNewOrder } from "@/db/service/orders-service";
+import { Delivery } from "@/enums/delivery.enum";
+import useCartStore from "@/stores/cartStore";
 import { useItemStore } from "@/stores/item.store";
 import { Product } from "@/types/tablesTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import ColorSection from "../Filters/ColorSection";
 import QuantitySection from "../Filters/QuantitySection";
 import SizeSection from "../Filters/SizeSection";
 import { Button } from "../ui/button";
-import { useEffect } from "react";
-import useCartStore from "@/stores/cartStore";
-import { Delivery } from "@/enums/delivery.enum";
 
 interface Props {
   product: Product;
@@ -83,8 +83,13 @@ export default function DetailsSection({ product }: Props) {
       <p className="text-2xl font-bold">
         ${(product.price * quantity).toFixed(2)}
       </p>
-      <Button disabled={isPending} size="lg" onClick={() => mutate()}>
-        Add to cart
+      <Button
+        disabled={isPending}
+        className="flex gap-2"
+        size="lg"
+        onClick={() => mutate()}
+      >
+        {isPending && <div className="loader" />}Add to cart
       </Button>
     </div>
   );

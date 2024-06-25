@@ -1,6 +1,8 @@
 "use server";
+import cashSchema from "@/schema/cashSchema";
 import { Delivery } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
+import { z } from "zod";
 
 export async function getAllDelivery(
   supabase: TypedSupabaseClient,
@@ -23,12 +25,17 @@ export async function createDelivery(
   userId: string,
   state: string,
   totalePrice: number,
+  credentials: z.infer<typeof cashSchema>,
 ): Promise<Delivery> {
   const { data, error } = await supabase.from("delivery").insert([
     {
       user_id: userId,
       state,
       total_price: parseFloat(totalePrice.toFixed(2)),
+      name: credentials.name,
+      email: credentials.email,
+      phone_number: credentials.phoneNumber,
+      address: credentials.address,
     },
   ]).select("*").single();
 

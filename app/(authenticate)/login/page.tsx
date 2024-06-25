@@ -10,7 +10,7 @@ const page = async () => {
   const user = await getUser(supabase);
 
   return (
-    <PageWrapper>
+    <PageWrapper className="justify-center">
       <LoginForm logged={user ? true : false} />
     </PageWrapper>
   );

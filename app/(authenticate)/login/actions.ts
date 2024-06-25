@@ -20,5 +20,5 @@ export async function login(values: z.infer<typeof loginSchema>) {
     return { error: error.message };
   }
 
-  redirect("/search");
+  redirect("/");
 }

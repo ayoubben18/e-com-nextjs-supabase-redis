@@ -18,6 +18,8 @@ import { getUser } from "../data/users.data";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { redis } from "@/lib/redis";
 import { CheckoutItemType } from "@/types/DtoTypes";
+import { z } from "zod";
+import cashSchema from "@/schema/cashSchema";
 
 export async function deleteOrder(orderId: string): Promise<void> {
   const supabase = createClient();
@@ -126,7 +128,10 @@ export async function getUserOrders(userId: string) {
   return orders;
 }
 
-export async function checkout(totalPrice: number) {
+export async function checkout(
+  totalPrice: number,
+  credentials: z.infer<typeof cashSchema>,
+) {
   const supabase = createClient();
   const user = await getUser(supabase);
   if (!user) {
@@ -138,6 +143,7 @@ export async function checkout(totalPrice: number) {
     user.id,
     Delivery.Placed,
     totalPrice,
+    credentials,
   );
 
   if (!newDelivery) {
@@ -151,7 +157,6 @@ export async function checkout(totalPrice: number) {
     Delivery.Placed,
     newDelivery.id,
   );
-  revalidateTag("checkoutItems");
 }
 
 export async function getDeliveryOrders(deliveryId: string) {
