@@ -65,17 +65,17 @@ export default function LoginForm({ logged }: Props) {
 
   const signInWithAuth = async (provider: "google" | "facebook") => {
     const supabase = createClient();
-    let whatENV;
-    const env = process.env.NODE_ENV;
-    if (env === "development") {
-      whatENV = "http://localhost:3000";
-    } else if (env === "production") {
-      whatENV = process.env.NEXT_PUBLIC_URL!;
-    }
+    // let whatENV;
+    // const env = process.env.NODE_ENV;
+    // if (env === "development") {
+    //   whatENV = "http://localhost:3000";
+    // } else if (env === "production") {
+    //   whatENV = process.env.NEXT_PUBLIC_URL!;
+    // }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${whatENV}/auth/callback`,
+        redirectTo: `https://e-com-store-ui-nine.vercel.app/auth/callback`,
       },
     });
     if (error) {
