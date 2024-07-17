@@ -1,22 +1,15 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
+  TableBody,
+  TableHead,
   TableHeader,
   TableRow,
-  TableHead,
-  TableBody,
 } from "@/components/ui/table";
-import ActiveItem from "../MappingCompenents/ActiveItem";
 import { getUserOrders } from "@/db/service/orders-service";
-import { createClient } from "@/utils/supabase/server";
-import { getUser } from "@/db/data/users.data";
+import ActiveItem from "../MappingCompenents/ActiveItem";
 export default async function ActiveItemsCard() {
-  const supabase = createClient();
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  const orders = await getUserOrders(user.id);
+  const orders = await getUserOrders({});
   if (!orders) {
     return null;
   }
@@ -28,7 +21,7 @@ export default async function ActiveItemsCard() {
             <div className="flex items-center gap-2">
               <span>History</span>
               <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
-                {orders.length}
+                {orders.data?.length}
               </div>
             </div>
           </CardTitle>
@@ -44,7 +37,7 @@ export default async function ActiveItemsCard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order, i) => (
+              {orders.data?.map((order, i) => (
                 <ActiveItem key={i} delivery={order} i={i + 1} />
               ))}
             </TableBody>

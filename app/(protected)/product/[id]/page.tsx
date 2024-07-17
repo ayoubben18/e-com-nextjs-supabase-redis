@@ -4,11 +4,16 @@ import CommentsComponent from "@/components/ui/CommentsComponent";
 import { getProductCommentsService } from "@/db/service/comments-service";
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const comments = await getProductCommentsService(params.id);
+  const comments = await getProductCommentsService({
+    productId: params.id,
+  });
   return (
     <PageWrapper className="mb-16 gap-10">
       <ProductDetails id={params.id} />
-      <CommentsComponent comments={comments || []} productId={params.id} />
+      <CommentsComponent
+        comments={comments?.data || []}
+        productId={params.id}
+      />
     </PageWrapper>
   );
 };

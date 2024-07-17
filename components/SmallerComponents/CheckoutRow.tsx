@@ -18,7 +18,7 @@ const CheckoutRow = ({ checkoutItems }: Props) => {
   const { item: cartItem } = useCartStore();
   const { setPrice } = useTotalPriceStore();
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["checkout-items", item, cartItem],
     queryFn: async () => getCheckoutItems(),
     initialData: checkoutItems,
@@ -28,8 +28,6 @@ const CheckoutRow = ({ checkoutItems }: Props) => {
     setPrice(Number(getTotlaePrice(data).toFixed(2)));
   }, [data]);
 
-  console.log(data, isLoading);
-
   // useEffect(() => {
   //   if (item) {
   //     setItem((prev) => prev.filter((i) => i.id !== item));
@@ -38,9 +36,11 @@ const CheckoutRow = ({ checkoutItems }: Props) => {
 
   return (
     <div className="grid gap-4">
-      {data.map((item, i) => (
-        <ItemCard CheckoutItem={item} key={i} />
-      ))}
+      {data.length === 0 ? (
+        <div className="text-center">No items in the cart</div>
+      ) : (
+        data.map((item, i) => <ItemCard CheckoutItem={item} key={i} />)
+      )}
     </div>
   );
 };

@@ -1,22 +1,21 @@
 "use server";
-import { Product } from "@/types/tablesTypes";
+import { redis } from "@/lib/redis";
+import { createClient } from "@/utils/supabase/server";
+import { pipeline } from "@xenova/transformers";
 import {
   findSimilarProduct,
   getProductById,
   getProducts,
 } from "../data/products.data";
-import { pipeline } from "@xenova/transformers";
-import { createClient } from "@/utils/supabase/server";
-import { redis } from "@/lib/redis";
-import { count, log } from "console";
+import { Products } from "@/types/tablesTypes";
 
 export async function getAllProductDetails(
   id: string,
-): Promise<{ details: Product | null; images: any[] }> {
+): Promise<{ details: Products | null; images: any[] }> {
   let product;
   const redisProduct = await redis.get(`product:${id}`);
   if (redisProduct) {
-    product = redisProduct as unknown as Product;
+    product = redisProduct as unknown as Products;
   } else {
     const supabase = createClient();
     product = await getProductById(supabase, id);
@@ -98,9 +97,8 @@ export async function fetchProductsService(
       }
 
       products = await redis.mget(productIds as string[]);
-      console.log(products[0], "products");
 
-      return products as unknown as Product[];
+      return products as unknown as Products[];
     } catch (err) {
       return null;
     }

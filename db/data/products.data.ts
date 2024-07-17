@@ -1,6 +1,6 @@
 "use server";
 import { handleStatus } from "@/errors/handleStatus";
-import { Product } from "@/types/tablesTypes";
+import { Products } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
 import { createClient } from "@/utils/supabase/client";
 
@@ -30,20 +30,20 @@ export async function getProducts(
 export async function getProductById(
   supabase: TypedSupabaseClient,
   id: string,
-): Promise<Product | null> {
-  const { data, status } = await supabase.from("products").select("*")
+): Promise<Products | null> {
+  const { data, error, status } = await supabase.from("products").select("*")
     .eq(
       "id",
       id,
     ).single();
 
-  return handleStatus(status, data) as Product | null;
+  return handleStatus(error, status, data) as Products | null;
 }
 
 export async function updateGeneralRatingProduct(
   supabase: TypedSupabaseClient,
   rating: number,
-): Promise<Product> {
+): Promise<Products> {
   const { data, error } = await supabase.from("products").update({
     general_rating: rating,
   })

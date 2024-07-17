@@ -40,7 +40,6 @@ const CashFormCard = () => {
 
   function onSubmit(values: z.infer<typeof cashSchema>) {
     setCredentials(values);
-    console.log(values);
     setSubmitted(true);
   }
 

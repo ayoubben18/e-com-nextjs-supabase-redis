@@ -30,7 +30,13 @@ export default function ActiveItem({
 }) {
   const { data, isLoading } = useQuery({
     queryKey: ["getDelivery", delivery.id],
-    queryFn: async () => getDeliveryOrders(delivery.id),
+    queryFn: async () => {
+      const deliveryOrders = await getDeliveryOrders({
+        deliveryId: delivery.id,
+      });
+
+      return deliveryOrders;
+    },
   });
 
   return (
@@ -67,7 +73,7 @@ export default function ActiveItem({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {data?.length === 0 ? (
+          {data?.data?.length === 0 ? (
             <h1>No Orders</h1>
           ) : (
             <Table>
@@ -84,7 +90,7 @@ export default function ActiveItem({
                 {isLoading ? (
                   <h1>Loading...</h1>
                 ) : (
-                  data?.map((order, i) => (
+                  data?.data?.map((order, i) => (
                     <TableRow>
                       <TableCell className="font-medium">
                         {order.products.name}

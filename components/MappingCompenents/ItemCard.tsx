@@ -17,7 +17,7 @@ export default function ItemCard({ CheckoutItem }: Props) {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationKey: ["deleteItem"],
-    mutationFn: () => deleteOrder(CheckoutItem.id),
+    mutationFn: deleteOrder,
     onMutate: () => {
       setItem(CheckoutItem.id);
     },
@@ -60,7 +60,7 @@ export default function ItemCard({ CheckoutItem }: Props) {
         variant="ghost"
         size="icon"
         className="rounded-full"
-        onClick={() => mutate()}
+        onClick={() => mutate({ orderId: CheckoutItem.id })}
         disabled={isPending}
       >
         <XIcon className="h-4 w-4" />

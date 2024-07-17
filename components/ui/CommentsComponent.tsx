@@ -1,17 +1,17 @@
 "use client";
-import { Comment } from "@/types/tablesTypes";
 import CommentDetails from "../MappingCompenents/CommentDetails";
 import CommentInput from "../SmallerComponents/CommentInput";
 import { useEffect, useState } from "react";
 import supabaseClient from "@/utils/supabaseClient";
+import { Comments } from "@/types/tablesTypes";
 
 interface Props {
-  comments: Comment[];
+  comments: Comments[];
   productId: string;
 }
 
 export default function CommentsComponent({ productId, comments }: Props) {
-  const [commentArr, setCommentArr] = useState<Comment[]>(comments);
+  const [commentArr, setCommentArr] = useState<Comments[]>(comments);
   useEffect(() => {
     const channel = supabaseClient
       .channel("realtime comments")
@@ -19,7 +19,7 @@ export default function CommentsComponent({ productId, comments }: Props) {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments" },
         (payload) => {
-          setCommentArr((prev) => [...prev, payload.new as Comment]);
+          setCommentArr((prev) => [...prev, payload.new as Comments]);
         },
       )
       .subscribe();
@@ -30,7 +30,7 @@ export default function CommentsComponent({ productId, comments }: Props) {
   }, [supabaseClient, commentArr, setCommentArr]);
   return (
     <div className="mx-auto w-full space-y-6 px-10">
-      <CommentInput commentId={productId} />
+      <CommentInput productId={productId} />
       <div className="space-y-4">
         {commentArr.length !== 0 ? (
           commentArr.map((com, index) => (

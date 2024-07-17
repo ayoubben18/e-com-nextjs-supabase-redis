@@ -18,10 +18,10 @@ import { z } from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface Props {
-  commentId: string;
+  productId: string;
 }
 
-export default function CommentInput({ commentId }: Props) {
+export default function CommentInput({ productId }: Props) {
   const form = useForm<z.infer<typeof commenInput>>({
     resolver: zodResolver(commenInput),
     defaultValues: {
@@ -31,15 +31,13 @@ export default function CommentInput({ commentId }: Props) {
 
   const { isPending, mutate } = useMutation({
     mutationKey: ["createComment"],
-    mutationFn: async ({ description }: z.infer<typeof commenInput>) => {
-      await createComment(description, commentId);
-      form.reset();
-    },
+    mutationFn: createComment,
     onError: (error) => {
       toast.error("Something went wrong !");
     },
     onSuccess: () => {
       toast.success("Comment Added !");
+      form.reset();
     },
   });
 
@@ -53,7 +51,9 @@ export default function CommentInput({ commentId }: Props) {
       <div className="flex-1">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((values) => mutate(values))}
+            onSubmit={form.handleSubmit((values) =>
+              mutate({ description: values.description, productId }),
+            )}
             className="flex gap-2"
           >
             <FormField

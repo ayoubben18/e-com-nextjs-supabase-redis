@@ -1,9 +1,11 @@
 "use server";
 import { Delivery } from "@/enums/delivery.enum";
-import { Order } from "@/types/tablesTypes";
-import { createCachedClient } from "@/utils/supabase/cachedClient";
+import { redis } from "@/lib/redis";
+import cashSchema from "@/schema/cashSchema";
+import { CheckoutItemType } from "@/types/DtoTypes";
 import { createClient } from "@/utils/supabase/server";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { revalidateTag } from "next/cache";
+import { z } from "zod";
 import { createDelivery, getAllDelivery } from "../data/delivery.data";
 import {
   createOrder,
@@ -15,83 +17,115 @@ import {
   updateOrders,
 } from "../data/orders.data";
 import { getUser } from "../data/users.data";
-import { revalidateTag, unstable_cache } from "next/cache";
-import { redis } from "@/lib/redis";
-import { CheckoutItemType } from "@/types/DtoTypes";
-import { z } from "zod";
-import cashSchema from "@/schema/cashSchema";
+import { authenticatedAction } from "@/actions/authenticatedActions";
+import { logger } from "@/logger/logger";
+import { flattenValidationErrors } from "next-safe-action";
+import { ECOMError } from "@/errors/ecommerce-error";
+import { ECOMErrorEnum } from "@/enums/EcomEnum";
 
-export async function deleteOrder(orderId: string): Promise<void> {
+const deleteOrder = authenticatedAction.schema(
+  z.object({
+    orderId: z.string(),
+  }),
+  {
+    handleValidationErrorsShape: (e) => flattenValidationErrors(e),
+  },
+).action(async ({ ctx: { userId }, parsedInput: { orderId } }) => {
   const supabase = createClient();
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  await removeOrderById(supabase, orderId, user.id);
-  const checkout = await redis.get(`user-checkout:${user.id}`);
+
+  await removeOrderById(supabase, orderId, userId);
+  const checkout = await redis.get(`user-checkout:${userId}`);
   // filter the deleted one
   const newCheckout = (checkout as CheckoutItemType[]).filter((item) =>
     item.id !== orderId
   );
 
   if (newCheckout.length === 0) {
-    await redis.del(`user-checkout:${user.id}`);
+    await redis.del(`user-checkout:${userId}`);
   }
 
-  await redis.set(`user-checkout:${user.id}`, newCheckout);
-}
+  await redis.set(`user-checkout:${userId}`, newCheckout);
+});
 
-export async function createNewOrder(
-  productId: string,
-  quantity: number,
-  price: number,
-  color?: string | null,
-  size?: string | null,
-): Promise<Order> {
-  const supabase = createClient();
+const createNewOrder = authenticatedAction.schema(
+  z.object({
+    productId: z.string(),
+    quantity: z.number(),
+    price: z.number(),
+    color: z.string().optional(),
+    size: z.string().optional(),
+  }),
+  {
+    handleValidationErrorsShape: (e) => flattenValidationErrors(e),
+  },
+).action(
+  async ({
+    ctx: { userId },
+    parsedInput: {
+      productId,
+      quantity,
+      price,
+      color,
+      size,
+    },
+  }) => {
+    const supabase = createClient();
 
-  const user = await getUser(supabase);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const order = await getSimilarOrder(
-    supabase,
-    user.id,
-    Delivery.NotPlaced,
-    productId,
-    color!,
-    size!,
-  );
-
-  if (order) {
-    const updatedOrder = await updateOrderQuatity(
+    const order = await getSimilarOrder(
       supabase,
-      order.quantity + quantity,
-      order.id,
-      order.price! + price,
+      userId,
+      Delivery.NotPlaced,
+      productId,
+      color!,
+      size!,
+    );
+
+    if (order) {
+      logger.debug("Updating order quantity");
+      const updatedOrder = await updateOrderQuatity(
+        supabase,
+        order.quantity + quantity,
+        order.id,
+        order.price! + price,
+      );
+
+      revalidateTag("checkoutItems");
+
+      return updatedOrder;
+    }
+    logger.debug("Creating new order");
+
+    const newOrder = await createOrder(
+      supabase,
+      userId,
+      productId,
+      quantity,
+      price,
+      color!,
+      size!,
     );
 
     revalidateTag("checkoutItems");
 
-    return updatedOrder;
-  }
+    return newOrder;
+  },
+);
 
-  const newOrder = await createOrder(
-    supabase,
-    user.id,
-    productId,
-    quantity,
-    price,
-    color!,
-    size!,
-  );
+// const getCheckoutItems = authenticatedAction.action(
+//   async ({ ctx: { userId } }) => {
+//     const supabase = createClient();
+//     const orders = await getCheckoutOrders(
+//       supabase,
+//       userId,
+//       Delivery.NotPlaced,
+//     );
 
-  revalidateTag("checkoutItems");
-
-  return newOrder;
-}
+//     if (!orders) {
+//       return [];
+//     }
+//     return orders;
+//   },
+// );
 
 export const getCheckoutItems = async () => {
   const supabase = createClient();
@@ -99,7 +133,7 @@ export const getCheckoutItems = async () => {
   const user = await getUser(supabase);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new ECOMError("User not found", ECOMErrorEnum.UserNotFound, 404);
   }
 
   // redis
@@ -122,51 +156,64 @@ export const getCheckoutItems = async () => {
   return orders;
 };
 
-export async function getUserOrders(userId: string) {
+const getUserOrders = authenticatedAction.action(
+  async ({ ctx: { userId } }) => {
+    const supabase = createClient();
+    const orders = await getAllDelivery(supabase, userId);
+    return orders;
+  },
+);
+
+// export async function getUserOrders(userId: string) {
+//   const supabase = createClient();
+//   const orders = await getAllDelivery(supabase, userId);
+//   return orders;
+// }
+
+const checkout = authenticatedAction.schema(
+  z.object({
+    totalPrice: z.number(),
+    credentials: cashSchema,
+  }),
+  {
+    handleValidationErrorsShape: (e) => flattenValidationErrors(e),
+  },
+).action(
+  async ({ ctx: { userId }, parsedInput: { totalPrice, credentials } }) => {
+    const supabase = createClient();
+    const newDelivery = await createDelivery(
+      supabase,
+      userId,
+      Delivery.Placed,
+      totalPrice,
+      credentials,
+    );
+
+    if (!newDelivery) {
+      throw new Error("Delivery not created");
+    }
+
+    await updateOrders(
+      supabase,
+      userId,
+      Delivery.NotPlaced,
+      Delivery.Placed,
+      newDelivery.id,
+    );
+  },
+);
+
+export const getDeliveryOrders = authenticatedAction.schema(
+  z.object({
+    deliveryId: z.string(),
+  }),
+  {
+    handleValidationErrorsShape: (e) => flattenValidationErrors(e),
+  },
+).action(async ({ ctx: { userId }, parsedInput: { deliveryId } }) => {
   const supabase = createClient();
-  const orders = await getAllDelivery(supabase, userId);
-  return orders;
-}
-
-export async function checkout(
-  totalPrice: number,
-  credentials: z.infer<typeof cashSchema>,
-) {
-  const supabase = createClient();
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const newDelivery = await createDelivery(
-    supabase,
-    user.id,
-    Delivery.Placed,
-    totalPrice,
-    credentials,
-  );
-
-  if (!newDelivery) {
-    throw new Error("Delivery not created");
-  }
-
-  await updateOrders(
-    supabase,
-    user.id,
-    Delivery.NotPlaced,
-    Delivery.Placed,
-    newDelivery.id,
-  );
-}
-
-export async function getDeliveryOrders(deliveryId: string) {
-  const supabase = createClient();
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("User not found");
-  }
   const redisDeliveryItems = await redis.get(
-    `user-placed:${user.id}/${deliveryId}`,
+    `user-placed:${userId}/${deliveryId}`,
   );
   if (redisDeliveryItems) {
     return redisDeliveryItems as CheckoutItemType[];
@@ -178,7 +225,7 @@ export async function getDeliveryOrders(deliveryId: string) {
   }
 
   return orders;
-}
+});
 
 // export async function getCheckoutItems(): Promise<CheckoutItemType[]> {
 //   const checkoutmap = new Map<Order, Product>();
@@ -202,3 +249,5 @@ export async function getDeliveryOrders(deliveryId: string) {
 
 //   return mapCheckoutMapToCheckoutItemArray(checkoutmap);
 // }
+
+export { checkout, createNewOrder, deleteOrder, getUserOrders };

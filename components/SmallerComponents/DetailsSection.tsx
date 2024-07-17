@@ -3,7 +3,6 @@ import { createNewOrder } from "@/db/service/orders-service";
 import { Delivery } from "@/enums/delivery.enum";
 import useCartStore from "@/stores/cartStore";
 import { useItemStore } from "@/stores/item.store";
-import { Product } from "@/types/tablesTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -11,9 +10,10 @@ import ColorSection from "../Filters/ColorSection";
 import QuantitySection from "../Filters/QuantitySection";
 import SizeSection from "../Filters/SizeSection";
 import { Button } from "../ui/button";
+import { Products } from "@/types/tablesTypes";
 
 interface Props {
-  product: Product;
+  product: Products;
 }
 
 export default function DetailsSection({ product }: Props) {
@@ -33,31 +33,7 @@ export default function DetailsSection({ product }: Props) {
 
   const { isPending, mutate } = useMutation({
     mutationKey: ["createOrder"],
-    mutationFn: async () => {
-      await createNewOrder(
-        product.id,
-        quantity,
-        quantity * product.price,
-        color,
-        size,
-      ).then((res) => {
-        addItem({
-          id: product.id,
-          price: product.price * quantity,
-          quantity,
-          color,
-          size,
-          status: Delivery.NotPlaced,
-          user_id: "1",
-          order_date: new Date().toISOString(),
-          product_id: product.id,
-          delivery_id: null,
-          products: {
-            name: product.name,
-          },
-        });
-      });
-    },
+    mutationFn: createNewOrder,
     onError: (error) => {
       toast.error("Something went wrong !");
       queryClient.invalidateQueries({
@@ -65,6 +41,21 @@ export default function DetailsSection({ product }: Props) {
       });
     },
     onSuccess: () => {
+      addItem({
+        id: product.id,
+        price: product.price * quantity,
+        quantity,
+        color,
+        size,
+        status: Delivery.NotPlaced,
+        user_id: "1",
+        order_date: new Date().toISOString(),
+        product_id: product.id,
+        delivery_id: null,
+        products: {
+          name: product.name,
+        },
+      });
       toast.success("Product added to cart");
     },
   });
@@ -87,7 +78,15 @@ export default function DetailsSection({ product }: Props) {
         disabled={isPending}
         className="flex gap-2"
         size="lg"
-        onClick={() => mutate()}
+        onClick={() =>
+          mutate({
+            productId: product.id,
+            quantity,
+            price: quantity * product.price,
+            color,
+            size,
+          })
+        }
       >
         {isPending && <div className="loader" />}Add to cart
       </Button>

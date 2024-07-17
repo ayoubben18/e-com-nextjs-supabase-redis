@@ -1,39 +1,43 @@
 "use server";
-import { Comment } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
-import { getUser } from "./users.data";
 import { handleStatus } from "@/errors/handleStatus";
 import { createClient } from "@/utils/supabase/server";
+import { Comments } from "@/types/tablesTypes";
+import { authenticatedAction } from "@/actions/authenticatedActions";
+import { z } from "zod";
 
-export async function getProductComments(
+const getProductComments = async (
   supabase: TypedSupabaseClient,
   id: string,
-): Promise<Comment[] | null> {
-  const { data, status } = await supabase.from("comments").select("*").eq(
-    "product_id",
-    id,
-  );
+) => {
+  const { data, error, status } = await supabase.from("comments").select("*")
+    .eq(
+      "product_id",
+      id,
+    );
 
-  return handleStatus(status, data) as Comment[] | null;
-}
+  return handleStatus(error, status, data) as Comments[] | null;
+};
 
-export async function createComment(
-  description: string,
-  product_id: string,
-): Promise<void> {
-  const supabase = createClient();
-  const user = await getUser(supabase);
-  if (!user) {
-    throw new Error("You are not connected !");
-  }
-  const { error } = await supabase.from("comments").insert([
-    {
-      description: description,
-      user_id: user.id,
-      product_id: product_id,
-    },
-  ]);
-  if (error) {
-    throw new Error(error.message);
-  }
-}
+const createComment = authenticatedAction.schema(
+  z.object({
+    description: z.string(),
+    productId: z.string().uuid(),
+  }),
+).action(
+  async ({ ctx: { userId }, parsedInput: { description, productId } }) => {
+    const supabase = createClient();
+
+    const { error, status, data } = await supabase.from("comments").insert([
+      {
+        description: description,
+        user_id: userId,
+        product_id: productId,
+      },
+    ]).select("*").single();
+
+    return handleStatus(error, status, data) as Comments | null;
+  },
+);
+
+export { createComment, getProductComments };
