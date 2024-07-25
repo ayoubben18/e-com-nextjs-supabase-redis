@@ -8,6 +8,8 @@ import {
   getProducts,
 } from "../data/products.data";
 import { Products } from "@/types/tablesTypes";
+import { ECOMError } from "@/errors/ecommerce-error";
+import { ECOMErrorEnum } from "@/enums/EcomEnum";
 
 export async function getAllProductDetails(
   id: string,
@@ -78,7 +80,11 @@ export async function fetchProductsService(
     );
 
     if (dbError) {
-      throw new Error(dbError.message);
+      throw new ECOMError(
+        "Failed to fetch products",
+        ECOMErrorEnum.DatabaseError,
+        500,
+      );
     }
 
     return data;
@@ -134,7 +140,11 @@ export async function fetchProductsService(
   }
 
   if (error) {
-    throw new Error(error);
+    throw new ECOMError(
+      "Failed to fetch products",
+      ECOMErrorEnum.DatabaseError,
+      500,
+    );
   }
 
   return products;

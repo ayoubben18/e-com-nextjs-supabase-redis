@@ -6,7 +6,7 @@ import { Products } from "@/types/tablesTypes";
 import { useQuery } from "@tanstack/react-query";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import SearchProductCard from "../MappingCompenents/SearchProductCard";
@@ -21,7 +21,7 @@ export default function CardsSearchComponent() {
   const [debounced] = useDebounce(searchTerm, 1000);
   const [products, setProducts] = useState<Products[]>([]);
 
-  const { isLoading, data, refetch } = useQuery({
+  const { isLoading, data, refetch, isFetching } = useQuery({
     queryKey: ["products", page, debounced, rating, topPrice],
     queryFn: async () => {
       const products = await fetchProductsService(
@@ -33,31 +33,23 @@ export default function CardsSearchComponent() {
       );
       if (products?.length === 0 && debounced.length < 3) {
         toast.info("No products left");
-        return [];
       } else if (products?.length === 0 && debounced.length >= 3) {
         toast.info(`No products found for "${debounced}"`);
-        return [];
       } else if (products && debounced.length < 3) {
         setProducts((prev) => [...prev, ...products]);
-        return products;
       } else if (products && debounced.length >= 3) {
         setProducts(products);
-        return products;
       }
+      return products;
     },
     refetchOnWindowFocus: false,
-    retry: false,
+    retry: true,
   });
-
-  useEffect(() => {
-    if (products.length === 0) {
-      refetch();
-    }
-  }, []);
 
   useEffect(() => {
     setPage(1);
     setProducts([]);
+    refetch();
   }, [debounced, rating, topPrice]);
 
   const loadMoreProducts = () => {
@@ -74,7 +66,7 @@ export default function CardsSearchComponent() {
             </Link>
           );
         })}
-        {isLoading && (
+        {(isLoading || isFetching) && (
           <>
             <SkeletonCard />
             <SkeletonCard />
