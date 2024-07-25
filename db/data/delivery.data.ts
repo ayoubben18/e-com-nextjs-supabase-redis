@@ -26,14 +26,16 @@ export async function createDelivery(
   state: string,
   totalePrice: number,
   credentials: z.infer<typeof cashSchema>,
+  name: string,
+  email: string,
 ): Promise<Delivery> {
   const { data, error } = await supabase.from("delivery").insert([
     {
       user_id: userId,
       state,
       total_price: parseFloat(totalePrice.toFixed(2)),
-      name: credentials.name,
-      email: credentials.email,
+      name,
+      email,
       phone_number: credentials.phoneNumber,
       address: credentials.address,
     },

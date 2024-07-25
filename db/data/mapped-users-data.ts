@@ -1,8 +1,8 @@
 "use server";
 
 import { handleStatus } from "@/errors/handleStatus";
+import { Users } from "@/types/tablesTypes";
 import { TypedSupabaseClient } from "@/types/TypedSupabaseClient";
-import { User } from "@supabase/supabase-js";
 
 const mapUser = async (
   supabase: TypedSupabaseClient,
@@ -18,7 +18,7 @@ const mapUser = async (
     },
   ]).select("*").single();
 
-  handleStatus(error, status, data) as User | null;
+  handleStatus(error, status, data) as Users | null;
 };
 
 const updateUser = async (
@@ -30,7 +30,7 @@ const updateUser = async (
     name: name,
   }).eq("id", id).select("*").single();
 
-  handleStatus(error, status, data) as User | null;
+  handleStatus(error, status, data) as Users | null;
 };
 
 const getMappedUser = async (
@@ -39,9 +39,9 @@ const getMappedUser = async (
   id: string,
 ) => {
   const { data, error, status } = await supabase.from("users").select("*")
-    .eq("email", email).eq("id", id);
+    .eq("email", email).eq("id", id).single();
 
-  return handleStatus(error, status, data) as User | null;
+  return handleStatus(error, status, data) as Users | null;
 };
 
 export { getMappedUser, mapUser, updateUser };

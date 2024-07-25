@@ -31,8 +31,6 @@ const CashFormCard = () => {
   const form = useForm<z.infer<typeof cashSchema>>({
     resolver: zodResolver(cashSchema),
     defaultValues: {
-      name: "",
-      email: "",
       phoneNumber: "",
       address: "",
     },
@@ -55,38 +53,6 @@ const CashFormCard = () => {
       <CardContent className="space-y-2">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              disabled={submitted}
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jhon Doe" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              disabled={submitted}
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="example@email.com" {...field} />
-                  </FormControl>
-                  <FormDescription>This is your email address.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               disabled={submitted}

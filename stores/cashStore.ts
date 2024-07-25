@@ -10,14 +10,11 @@ type StoreState = {
 
 const useCashStore = create<StoreState>((set) => ({
   credentials: {
-    name: "",
-    email: "",
     phoneNumber: "",
     address: "",
   },
   setCredentials: (credentials) => set({ credentials }),
-  reset: () =>
-    set({ credentials: { name: "", email: "", phoneNumber: "", address: "" } }),
+  reset: () => set({ credentials: { phoneNumber: "", address: "" } }),
 }));
 
 export default useCashStore;

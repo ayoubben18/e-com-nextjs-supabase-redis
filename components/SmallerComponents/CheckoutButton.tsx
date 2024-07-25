@@ -37,12 +37,7 @@ const CheckoutButton = ({ empty, totalPrice }: Props) => {
       variant="ringHover"
       className="flex w-full gap-2"
       onClick={async () => {
-        if (
-          credentials.name === "" ||
-          credentials.email === "" ||
-          credentials.phoneNumber === "" ||
-          credentials.address === ""
-        ) {
+        if (credentials.phoneNumber === "" || credentials.address === "") {
           toast.error("Please fill all the fields");
         } else {
           mutate({

@@ -20,7 +20,13 @@ const CheckoutRow = ({ checkoutItems }: Props) => {
 
   const { data } = useQuery({
     queryKey: ["checkout-items", item, cartItem],
-    queryFn: async () => getCheckoutItems(),
+    queryFn: async () => {
+      //@ts-ignore
+      const items = await getCheckoutItems();
+
+      if (!items) return [];
+      return items.data ? items.data : [];
+    },
     initialData: checkoutItems,
   });
 

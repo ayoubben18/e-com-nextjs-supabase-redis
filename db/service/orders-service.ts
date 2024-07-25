@@ -1,9 +1,12 @@
 "use server";
+import { authenticatedAction } from "@/actions/authenticatedActions";
 import { Delivery } from "@/enums/delivery.enum";
 import { redis } from "@/lib/redis";
+import { logger } from "@/logger/logger";
 import cashSchema from "@/schema/cashSchema";
 import { CheckoutItemType } from "@/types/DtoTypes";
 import { createClient } from "@/utils/supabase/server";
+import { flattenValidationErrors } from "next-safe-action";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { createDelivery, getAllDelivery } from "../data/delivery.data";
@@ -16,12 +19,6 @@ import {
   updateOrderQuatity,
   updateOrders,
 } from "../data/orders.data";
-import { getUser } from "../data/users.data";
-import { authenticatedAction } from "@/actions/authenticatedActions";
-import { logger } from "@/logger/logger";
-import { flattenValidationErrors } from "next-safe-action";
-import { ECOMError } from "@/errors/ecommerce-error";
-import { ECOMErrorEnum } from "@/enums/EcomEnum";
 
 const deleteOrder = authenticatedAction.schema(
   z.object({
@@ -127,34 +124,21 @@ const createNewOrder = authenticatedAction.schema(
 //   },
 // );
 
-export const getCheckoutItems = async () => {
-  const supabase = createClient();
+const getCheckoutItems = authenticatedAction.action(
+  async ({ ctx: { userId } }) => {
+    const supabase = createClient();
+    const orders = await getCheckoutOrders(
+      supabase,
+      userId,
+      Delivery.NotPlaced,
+    );
 
-  const user = await getUser(supabase);
-
-  if (!user) {
-    throw new ECOMError("User not found", ECOMErrorEnum.UserNotFound, 404);
-  }
-
-  // redis
-  // const checkoutRedisItems = await redis.get(`user-checkout:${user.id}`);
-
-  // if (checkoutRedisItems) {
-  //   return checkoutRedisItems as CheckoutItemType[];
-  // }
-
-  // db
-  const orders = await getCheckoutOrders(
-    supabase,
-    user.id,
-    Delivery.NotPlaced,
-  );
-
-  if (!orders) {
-    return [];
-  }
-  return orders;
-};
+    if (!orders) {
+      return [];
+    }
+    return orders;
+  },
+);
 
 const getUserOrders = authenticatedAction.action(
   async ({ ctx: { userId } }) => {
@@ -173,7 +157,9 @@ const checkout = authenticatedAction.schema(
     handleValidationErrorsShape: (e) => flattenValidationErrors(e),
   },
 ).action(
-  async ({ ctx: { userId }, parsedInput: { totalPrice, credentials } }) => {
+  async (
+    { ctx: { userId, email, name }, parsedInput: { totalPrice, credentials } },
+  ) => {
     const supabase = createClient();
     const newDelivery = await createDelivery(
       supabase,
@@ -181,6 +167,8 @@ const checkout = authenticatedAction.schema(
       Delivery.Placed,
       totalPrice,
       credentials,
+      name!,
+      email!,
     );
 
     if (!newDelivery) {
@@ -244,4 +232,10 @@ export const getDeliveryOrders = authenticatedAction.schema(
 //   return mapCheckoutMapToCheckoutItemArray(checkoutmap);
 // }
 
-export { checkout, createNewOrder, deleteOrder, getUserOrders };
+export {
+  checkout,
+  createNewOrder,
+  deleteOrder,
+  getCheckoutItems,
+  getUserOrders,
+};

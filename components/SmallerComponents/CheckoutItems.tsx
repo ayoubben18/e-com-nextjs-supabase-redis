@@ -23,7 +23,12 @@ export default function CheckoutItems({ items }: Props) {
   const { item: cartItem } = useCartStore();
   const { data, isLoading } = useQuery({
     queryKey: ["checkout-items", item, cartItem],
-    queryFn: async () => getCheckoutItems(),
+
+    queryFn: async () => {
+      //@ts-ignore
+      const items = await getCheckoutItems();
+      return items?.data;
+    },
     initialData: items,
   });
   return (
@@ -41,9 +46,8 @@ export default function CheckoutItems({ items }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((item, i) => (
-              <CheckoutItemRow key={i} item={item} />
-            ))}
+            {data &&
+              data.map((item, i) => <CheckoutItemRow key={i} item={item} />)}
           </TableBody>
         </Table>
       </CardContent>
