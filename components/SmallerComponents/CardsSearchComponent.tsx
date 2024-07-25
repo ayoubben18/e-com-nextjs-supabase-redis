@@ -12,6 +12,7 @@ import { useDebounce } from "use-debounce";
 import SearchProductCard from "../MappingCompenents/SearchProductCard";
 import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
 import { Button } from "../ui/button";
+import { FullProductType } from "@/types/FullProductType";
 
 export default function CardsSearchComponent() {
   const itemsPerPage = 10;
@@ -19,7 +20,7 @@ export default function CardsSearchComponent() {
   const [page, setPage] = useState(1);
   const { searchTerm } = useSearchStore();
   const [debounced] = useDebounce(searchTerm, 1000);
-  const [products, setProducts] = useState<Products[]>([]);
+  const [products, setProducts] = useState<FullProductType[]>([]);
 
   const { isLoading, data, refetch, isFetching } = useQuery({
     queryKey: ["products", page, debounced, rating, topPrice],
@@ -80,7 +81,9 @@ export default function CardsSearchComponent() {
           <Button
             className="group"
             onClick={loadMoreProducts}
-            disabled={isLoading || (data && data.length < itemsPerPage)}
+            disabled={
+              isFetching || (data && data.length < itemsPerPage) || false
+            }
           >
             <span className="group-hover:text-white">Show more</span>
             <PlusCircle className="ml-2 group-hover:stroke-white" />

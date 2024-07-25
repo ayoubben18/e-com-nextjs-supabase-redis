@@ -10,37 +10,40 @@ import {
 import { Products } from "@/types/tablesTypes";
 import { ECOMError } from "@/errors/ecommerce-error";
 import { ECOMErrorEnum } from "@/enums/EcomEnum";
+import { ImageCache } from "@/types/ImageCache";
+import { getProductImages } from "../data/products-images-data";
+import { FullProductType } from "@/types/FullProductType";
+import { logger } from "@/logger/logger";
+import { ProductType } from "@/types/ProductType";
 
-export async function getAllProductDetails(
+export const getProductService = async (
   id: string,
-): Promise<{ details: Products | null; images: any[] }> {
-  let product;
-  const redisProduct = await redis.get(`product:${id}`);
-  if (redisProduct) {
-    product = redisProduct as unknown as Products;
-  } else {
-    const supabase = createClient();
-    product = await getProductById(supabase, id);
+): Promise<ProductType | null> => {
+  const product: Products | null = await redis.get(`product:${id}`);
+
+  if (product) {
+    const productImages: ImageCache[] | null = await redis.get(`images:${id}`);
+    return { ...product, images: productImages || [] };
   }
 
+  const supabase = createClient();
+  const productData = await getProductById(supabase, id);
+
+  if (!productData) return null;
+
+  const images = await getProductImages(supabase, productData.id, 5);
+
   return {
-    details: product,
-    images: [],
+    ...productData,
+    images: images.map((image) => {
+      return {
+        name: image.full_path?.split("/").pop() || "",
+        path: image.full_path,
+        url: image.image_url,
+      };
+    }),
   };
-}
-
-// export async function getInfiniteProducts(
-//   { pageParam }: { pageParam: number },
-// ): Promise<{ data: Product[]; currentPage: number; nextPage: number | null }> {
-//   // const supabase = createClient();
-//   const products = await getProducts(10, pageParam);
-
-//   return {
-//     data: products,
-//     currentPage: pageParam,
-//     nextPage: pageParam + 1,
-//   };
-// }
+};
 
 export async function embedTerm(value: string) {
   const pipe = await pipeline(
@@ -63,15 +66,14 @@ export async function fetchProductsService(
   searchValue: string,
   rating: number | null,
   topPrice: number | undefined,
-) {
+): Promise<FullProductType[]> {
   const supabase = createClient();
   let searchedProducts;
   const pageSize = itemsPerPage;
-  let products;
-  let error;
 
   const fetchFromDatabase = async () => {
-    const { data, error: dbError } = await getProducts(
+    const productsWithImages = [];
+    const products = await getProducts(
       supabase,
       pageSize,
       page,
@@ -79,15 +81,15 @@ export async function fetchProductsService(
       topPrice || 9999999,
     );
 
-    if (dbError) {
-      throw new ECOMError(
-        "Failed to fetch products",
-        ECOMErrorEnum.DatabaseError,
-        500,
-      );
+    for (const product of products) {
+      const image = await getProductImages(supabase, product.id, 1);
+
+      if (image.length !== 0) {
+        productsWithImages.push({ ...product, imageUrl: image[0].image_url });
+      } else productsWithImages.push({ ...product, imageUrl: null });
     }
 
-    return data;
+    return productsWithImages;
   };
 
   async function fetchFromRedis() {
@@ -103,11 +105,23 @@ export async function fetchProductsService(
         return null; // No products found in Redis
       }
 
-      products = await redis.mget(productIds as string[]);
+      const products: Products[] = await redis.mget(productIds as string[]);
+      const productsImagesKeys = products.map(
+        (product) => `images:${product.id}`,
+      );
+      const productsImages: ImageCache[][] = await redis.mget(
+        productsImagesKeys,
+      );
 
-      return products as unknown as Products[];
+      const productsWithImages = products.map((product, index) => {
+        const imageUrl = productsImages[index]?.[0]?.url;
+
+        return { ...product, imageUrl };
+      });
+
+      return productsWithImages;
     } catch (err) {
-      return null;
+      throw new ECOMError("products not found", ECOMErrorEnum.RedisError, 500);
     }
   }
 
@@ -123,29 +137,34 @@ export async function fetchProductsService(
           (product) => product.general_rating >= rating,
         );
       }
+      if (topPrice) {
+        searchedProducts = searchedProducts.filter(
+          (product) => product.price <= topPrice,
+        );
+      }
 
-      products = searchedProducts;
-    } else {
-      error = "No products found";
-    }
-  } else {
-    // get the values that has keys starting with product:* from redis
-    if (!rating && !topPrice) {
-      products = await fetchFromRedis();
-    }
+      let productsWithImages = [];
 
-    if (!products || products.length === 0) {
-      products = await fetchFromDatabase();
+      for (const product of searchedProducts) {
+        const image = await getProductImages(supabase, product.id, 1);
+
+        if (image.length !== 0) {
+          productsWithImages.push({ ...product, imageUrl: image[0].image_url });
+        } else productsWithImages.push({ ...product, imageUrl: null });
+      }
+
+      return productsWithImages;
     }
   }
-
-  if (error) {
-    throw new ECOMError(
-      "Failed to fetch products",
-      ECOMErrorEnum.DatabaseError,
-      500,
-    );
+  // get the values that has keys starting with product:* from redis
+  if (!rating && !topPrice) {
+    const products = await fetchFromRedis();
+    if (products) {
+      logger.info("Products fetched from Redis");
+      return products;
+    }
+    logger.info("Products fetched from Supabase");
+    return await fetchFromDatabase();
   }
-
-  return products;
+  return await fetchFromDatabase();
 }

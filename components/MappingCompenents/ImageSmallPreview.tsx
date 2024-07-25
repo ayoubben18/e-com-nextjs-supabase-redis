@@ -1,10 +1,22 @@
+import { ImageCache } from "@/types/ImageCache";
 import Image from "next/image";
-export function ImageSmallPreview() {
+
+interface Props {
+  image: ImageCache;
+  setImage: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export function ImageSmallPreview({ image, setImage }: Props) {
   return (
-    <button className="overflow-hidden rounded-lg border transition-colors hover:border-gray-900 dark:hover:border-gray-50">
+    <button
+      onClick={() => {
+        image.url && setImage(image.url);
+      }}
+      className="overflow-hidden rounded-lg border transition-colors hover:border-gray-900 dark:hover:border-gray-50"
+    >
       <Image
         priority
-        src="/product.webp"
+        src={image.url || "/not-available.jpg"}
         alt="Preview thumbnail"
         width={100}
         height={120}

@@ -11,10 +11,11 @@ export async function getProducts(
   rating: number = 0,
   topPrice: number,
 ) {
-  const response = await supabase.from("products").select("*").order(
-    "general_rating",
-    { ascending: false },
-  ).gt("general_rating", rating)
+  const { data, error, status } = await supabase.from("products").select("*")
+    .order(
+      "general_rating",
+      { ascending: false },
+    ).gt("general_rating", rating)
     .lte(
       "price",
       topPrice,
@@ -24,7 +25,7 @@ export async function getProducts(
       page * elementPerPage - 1,
     );
 
-  return response;
+  return handleStatus(error, status, data) as Products[];
 }
 
 export async function getProductById(

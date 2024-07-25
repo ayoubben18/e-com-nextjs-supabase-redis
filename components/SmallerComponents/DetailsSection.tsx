@@ -11,9 +11,10 @@ import QuantitySection from "../Filters/QuantitySection";
 import SizeSection from "../Filters/SizeSection";
 import { Button } from "../ui/button";
 import { Products } from "@/types/tablesTypes";
+import { ProductType } from "@/types/ProductType";
 
 interface Props {
-  product: Products;
+  product: ProductType;
 }
 
 export default function DetailsSection({ product }: Props) {

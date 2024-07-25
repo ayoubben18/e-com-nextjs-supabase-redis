@@ -1,9 +1,9 @@
 import { StarIcon } from "@/svgs";
-import { Products } from "@/types/tablesTypes";
+import { FullProductType } from "@/types/FullProductType";
 import Image from "next/image";
 
 interface Props {
-  product: Products;
+  product: FullProductType;
 }
 
 export default function SearchProductCard({ product }: Props) {
@@ -18,7 +18,7 @@ export default function SearchProductCard({ product }: Props) {
   return (
     <div className="group relative">
       <Image
-        src="/product.webp"
+        src={product.imageUrl || "/product.webp"}
         alt="Product Image"
         priority
         width={300}
