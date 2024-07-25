@@ -21,7 +21,7 @@ export default function ProfileDropDown() {
     if (error) {
       console.error("Sign out error", error);
     }
-    router.push("/login");
+    router.push("/");
   };
   return (
     <DropdownMenu>

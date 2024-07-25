@@ -57,13 +57,14 @@ export async function embedTerm(value: string) {
 
 export async function fetchProductsService(
   page: number,
+  itemsPerPage: number,
   searchValue: string,
   rating: number | null,
   topPrice: number | undefined,
 ) {
   const supabase = createClient();
   let searchedProducts;
-  const pageSize = 10;
+  const pageSize = itemsPerPage;
   let products;
   let error;
 

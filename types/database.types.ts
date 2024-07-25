@@ -82,30 +82,42 @@ export type Database = {
       }
       delivery: {
         Row: {
+          address: string
           check_out: string | null
           created_at: string
           delivered: string | null
+          email: string
           id: string
+          name: string
+          phone_number: string
           shipping: string | null
           state: string
           total_price: number
           user_id: string
         }
         Insert: {
+          address: string
           check_out?: string | null
           created_at?: string
           delivered?: string | null
+          email: string
           id?: string
+          name: string
+          phone_number: string
           shipping?: string | null
           state?: string
           total_price: number
           user_id: string
         }
         Update: {
+          address?: string
           check_out?: string | null
           created_at?: string
           delivered?: string | null
+          email?: string
           id?: string
+          name?: string
+          phone_number?: string
           shipping?: string | null
           state?: string
           total_price?: number
@@ -227,28 +239,34 @@ export type Database = {
       products_images: {
         Row: {
           created_at: string
+          full_path: string | null
           id: string
-          object_id: string
-          product_id: string
+          image_url: string | null
+          object_id: string | null
+          product_id: string | null
         }
         Insert: {
           created_at?: string
+          full_path?: string | null
           id?: string
-          object_id: string
-          product_id: string
+          image_url?: string | null
+          object_id?: string | null
+          product_id?: string | null
         }
         Update: {
           created_at?: string
+          full_path?: string | null
           id?: string
-          object_id?: string
-          product_id?: string
+          image_url?: string | null
+          object_id?: string | null
+          product_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "products_images_object_id_fkey"
             columns: ["object_id"]
             isOneToOne: false
-            referencedRelation: "buckets"
+            referencedRelation: "objects"
             referencedColumns: ["id"]
           },
           {
@@ -302,6 +320,24 @@ export type Database = {
           },
         ]
       }
+      users: {
+        Row: {
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          email: string
+          id: string
+          name?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
+      }
       users_images: {
         Row: {
           created_at: string
@@ -343,6 +379,53 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_customer_conversion_rate: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_users: number
+          users_with_purchase: number
+          conversion_rate: number
+        }[]
+      }
+      get_daily_revenue: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          sale_date: string
+          daily_revenue: number
+        }[]
+      }
+      get_delivery_count_by_date: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          date: string
+          count: number
+        }[]
+      }
+      get_order_count_by_product: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          product_id: string
+          product_name: string
+          count: number
+        }[]
+      }
+      get_product_sales_by_day: {
+        Args: {
+          product_uuid: string
+        }
+        Returns: {
+          sale_date: string
+          quantity_sold: number
+        }[]
+      }
+      get_product_sales_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          product_id: string
+          product_name: string
+          total_sold: number
+        }[]
+      }
       match_documents: {
         Args: {
           query_embedding: string

@@ -9,7 +9,8 @@ import {
 import { getUserOrders } from "@/db/service/orders-service";
 import ActiveItem from "../MappingCompenents/ActiveItem";
 export default async function ActiveItemsCard() {
-  const orders = await getUserOrders({});
+  // @ts-ignore
+  const orders = await getUserOrders();
   if (!orders) {
     return null;
   }

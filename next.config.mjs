@@ -3,6 +3,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  reactStrictMode: false,
   // give access cdn.pixabay.com for images
   images: {
     remotePatterns: [

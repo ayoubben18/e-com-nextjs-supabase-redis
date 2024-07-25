@@ -52,8 +52,8 @@ const createNewOrder = authenticatedAction.schema(
     productId: z.string(),
     quantity: z.number(),
     price: z.number(),
-    color: z.string().optional(),
-    size: z.string().optional(),
+    color: z.string().nullable(),
+    size: z.string().nullable(),
   }),
   {
     handleValidationErrorsShape: (e) => flattenValidationErrors(e),
@@ -163,12 +163,6 @@ const getUserOrders = authenticatedAction.action(
     return orders;
   },
 );
-
-// export async function getUserOrders(userId: string) {
-//   const supabase = createClient();
-//   const orders = await getAllDelivery(supabase, userId);
-//   return orders;
-// }
 
 const checkout = authenticatedAction.schema(
   z.object({

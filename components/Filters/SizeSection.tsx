@@ -26,7 +26,7 @@ export default function SizeSection({ sizes }: Props) {
             className="flex cursor-pointer items-center gap-2 rounded-md border p-2 [&:has(:checked)]:bg-gray-100 dark:[&:has(:checked)]:bg-gray-800"
           >
             <RadioGroupItem id="size-xs" value={size} />
-            {size}
+            {size.toUpperCase()}
           </Label>
         ))}
       </RadioGroup>

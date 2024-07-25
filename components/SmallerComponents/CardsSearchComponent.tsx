@@ -2,7 +2,7 @@
 import { fetchProductsService } from "@/db/service/product-service";
 import { useFilterStore } from "@/stores/filterStore";
 import useSearchStore from "@/stores/searchStore";
-import { Product } from "@/types/tablesTypes";
+import { Products } from "@/types/tablesTypes";
 import { useQuery } from "@tanstack/react-query";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
@@ -14,33 +14,46 @@ import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
 import { Button } from "../ui/button";
 
 export default function CardsSearchComponent() {
+  const itemsPerPage = 10;
   const { rating, topPrice } = useFilterStore();
   const [page, setPage] = useState(1);
   const { searchTerm } = useSearchStore();
   const [debounced] = useDebounce(searchTerm, 1000);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Products[]>([]);
 
-  const { isLoading } = useQuery({
+  const { isLoading, data, refetch } = useQuery({
     queryKey: ["products", page, debounced, rating, topPrice],
     queryFn: async () => {
       const products = await fetchProductsService(
         page,
+        itemsPerPage,
         debounced,
         rating,
         topPrice,
       );
       if (products?.length === 0 && debounced.length < 3) {
         toast.info("No products left");
+        return [];
       } else if (products?.length === 0 && debounced.length >= 3) {
         toast.info(`No products found for "${debounced}"`);
+        return [];
       } else if (products && debounced.length < 3) {
         setProducts((prev) => [...prev, ...products]);
+        return products;
       } else if (products && debounced.length >= 3) {
         setProducts(products);
+        return products;
       }
     },
+    refetchOnWindowFocus: false,
     retry: false,
   });
+
+  useEffect(() => {
+    if (products.length === 0) {
+      refetch();
+    }
+  }, []);
 
   useEffect(() => {
     setPage(1);
@@ -72,7 +85,11 @@ export default function CardsSearchComponent() {
       </div>
       {!isLoading && debounced.length < 3 && (
         <div className="mt-5 flex w-full justify-center">
-          <Button className="group" onClick={loadMoreProducts}>
+          <Button
+            className="group"
+            onClick={loadMoreProducts}
+            disabled={isLoading || (data && data.length < itemsPerPage)}
+          >
             <span className="group-hover:text-white">Show more</span>
             <PlusCircle className="ml-2 group-hover:stroke-white" />
           </Button>

@@ -30,7 +30,7 @@ export default function LoginForm() {
     defaultValues: {
       email: "",
       password: "",
-      username: "",
+      name: "",
     },
   });
 
@@ -40,7 +40,8 @@ export default function LoginForm() {
       signup(values)
         .then((data) => {
           if (data?.error) {
-            form.reset();
+            console.log(data.error);
+
             triggerError(data.error);
           }
           if (data?.success) {
@@ -65,14 +66,14 @@ export default function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="jhon.doe" {...field} />
+                    <Input placeholder="jhon doe" {...field} />
                   </FormControl>
-                  <FormDescription>Enter your Username.</FormDescription>
+                  <FormDescription>Enter your Name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -98,7 +99,7 @@ export default function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="******" {...field} />
+                    <Input type="password" placeholder="******" {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter your Password ( at least 6 characters ).

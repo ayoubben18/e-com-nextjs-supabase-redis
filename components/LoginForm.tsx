@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { toast } from "sonner";
 
 interface Props {
   logged: boolean;
@@ -81,6 +82,7 @@ export default function LoginForm({ logged }: Props) {
     if (error) {
       console.error("Error", error);
       return;
+    } else {
     }
   };
 
@@ -120,7 +122,12 @@ export default function LoginForm({ logged }: Props) {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input disabled={logged} placeholder="******" {...field} />
+                    <Input
+                      type="password"
+                      disabled={logged}
+                      placeholder="******"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Enter your Password ( at least 6 characters ).
@@ -154,7 +161,13 @@ export default function LoginForm({ logged }: Props) {
               <ChromeIcon className="mr-2 h-4 w-4" />
               Google
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                toast.warning("Facebook login is not available yet");
+              }}
+            >
               <FacebookIcon className="mr-2 h-4 w-4" />
               Facebook
             </Button>

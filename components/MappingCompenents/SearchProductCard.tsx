@@ -1,9 +1,9 @@
 import { StarIcon } from "@/svgs";
-import { Product } from "@/types/tablesTypes";
+import { Products } from "@/types/tablesTypes";
 import Image from "next/image";
 
 interface Props {
-  product: Product;
+  product: Products;
 }
 
 export default function SearchProductCard({ product }: Props) {

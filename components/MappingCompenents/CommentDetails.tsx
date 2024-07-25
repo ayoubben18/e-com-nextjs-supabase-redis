@@ -1,9 +1,9 @@
-import { Comment } from "@/types/tablesTypes";
 import { formatDistance } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Comments } from "@/types/tablesTypes";
 
 interface Props {
-  comment: Comment;
+  comment: Comments;
 }
 
 export default function CommentDetails({ comment }: Props) {

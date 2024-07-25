@@ -1,7 +1,10 @@
+"use client";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const SupportForm = () => {
   return (
@@ -13,7 +16,7 @@ const SupportForm = () => {
           possible.
         </p>
       </div>
-      <form className="space-y-4">
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="subject">Subject</Label>
           <Input id="subject" placeholder="Enter a subject" />
@@ -26,10 +29,20 @@ const SupportForm = () => {
             className="min-h-[150px]"
           />
         </div>
-        <Button type="submit" className="w-full">
+        <p className="text-sm opacity-50">
+          This doesn't work We have no real customers. We'll set it up later :)
+        </p>
+        <Button
+          className="w-full"
+          onClick={() => {
+            toast.info(
+              "Your message has been sent! We'll get back to you soon.",
+            );
+          }}
+        >
           Submit
         </Button>
-      </form>
+      </div>
     </div>
   );
 };

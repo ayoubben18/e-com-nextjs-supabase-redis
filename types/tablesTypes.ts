@@ -9,3 +9,5 @@ export type cart = Tables<"cart">;
 
 export type ProductImages = Tables<"products_images">;
 export type UsersImages = Tables<"users_images">;
+
+export type Users = Tables<"users">;
