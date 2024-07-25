@@ -15,7 +15,7 @@ export default function ProductHomeCard() {
   return (
     <div className="group relative overflow-hidden rounded-lg">
       <Image
-        src="/product.webp"
+        src="/not-available.jpg"
         priority
         alt="Product 1"
         width={400}

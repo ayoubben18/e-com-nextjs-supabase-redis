@@ -18,7 +18,7 @@ export default function SearchProductCard({ product }: Props) {
   return (
     <div className="group relative">
       <Image
-        src={product.imageUrl || "/product.webp"}
+        src={product.imageUrl || "/not-available.jpg"}
         alt="Product Image"
         priority
         width={300}

@@ -7,7 +7,7 @@ export default function HeroSection() {
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <Image
-            src="/product.webp"
+            src="/not-available.jpg"
             width="550"
             priority
             height="550"

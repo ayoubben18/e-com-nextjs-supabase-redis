@@ -38,7 +38,7 @@ export default function ItemCard({ CheckoutItem }: Props) {
     <div className="flex items-center gap-4">
       <Image
         priority
-        src="/product.webp"
+        src="/not-available.jpg"
         width="64"
         height="64"
         alt="Product image"

@@ -14,7 +14,7 @@ export default function CheckoutItemRow({ item }: Props) {
         <div className="flex items-center gap-3">
           <Image
             priority
-            src="/product.webp"
+            src="/not-available.jpg"
             alt="Product Image"
             width={64}
             height={64}
