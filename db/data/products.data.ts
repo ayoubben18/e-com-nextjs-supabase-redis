@@ -15,7 +15,7 @@ export async function getProducts(
     .order(
       "general_rating",
       { ascending: false },
-    ).gt("general_rating", rating)
+    ).gte("general_rating", rating)
     .lte(
       "price",
       topPrice,

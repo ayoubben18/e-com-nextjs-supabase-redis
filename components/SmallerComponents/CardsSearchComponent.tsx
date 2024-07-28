@@ -2,31 +2,36 @@
 import { fetchProductsService } from "@/db/service/product-service";
 import { useFilterStore } from "@/stores/filterStore";
 import useSearchStore from "@/stores/searchStore";
-import { Products } from "@/types/tablesTypes";
-import { useQuery } from "@tanstack/react-query";
+import { FullProductType } from "@/types/FullProductType";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import SearchProductCard from "../MappingCompenents/SearchProductCard";
 import { SkeletonCard } from "../MappingCompenents/SkeletonCard";
 import { Button } from "../ui/button";
-import { FullProductType } from "@/types/FullProductType";
 
 export default function CardsSearchComponent() {
   const itemsPerPage = 10;
   const { rating, topPrice } = useFilterStore();
-  const [page, setPage] = useState(1);
   const { searchTerm } = useSearchStore();
   const [debounced] = useDebounce(searchTerm, 1000);
   const [products, setProducts] = useState<FullProductType[]>([]);
 
-  const { isLoading, data, refetch, isFetching } = useQuery({
-    queryKey: ["products", page, debounced, rating, topPrice],
-    queryFn: async () => {
+  const {
+    fetchNextPage,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["products"],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
       const products = await fetchProductsService(
-        page,
+        pageParam,
         itemsPerPage,
         debounced,
         rating,
@@ -43,19 +48,14 @@ export default function CardsSearchComponent() {
       }
       return products;
     },
-    refetchOnWindowFocus: false,
-    retry: true,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === itemsPerPage ? allPages.length + 1 : undefined,
   });
 
   useEffect(() => {
-    setPage(1);
     setProducts([]);
     refetch();
   }, [debounced, rating, topPrice]);
-
-  const loadMoreProducts = () => {
-    setPage((prev) => prev + 1);
-  };
 
   return (
     <div className="col-span-3">
@@ -67,7 +67,7 @@ export default function CardsSearchComponent() {
             </Link>
           );
         })}
-        {(isLoading || isFetching) && (
+        {(isFetching || isFetchingNextPage) && (
           <>
             <SkeletonCard />
             <SkeletonCard />
@@ -76,14 +76,12 @@ export default function CardsSearchComponent() {
           </>
         )}
       </div>
-      {!isLoading && debounced.length < 3 && (
+      {debounced.length < 3 && (
         <div className="mt-5 flex w-full justify-center">
           <Button
             className="group"
-            onClick={loadMoreProducts}
-            disabled={
-              isFetching || (data && data.length < itemsPerPage) || false
-            }
+            onClick={() => fetchNextPage()}
+            disabled={isFetching || isFetchingNextPage || !hasNextPage || false}
           >
             <span className="group-hover:text-white">Show more</span>
             <PlusCircle className="ml-2 group-hover:stroke-white" />
